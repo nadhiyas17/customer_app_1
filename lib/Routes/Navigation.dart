@@ -8,7 +8,8 @@ var onGenerateRoute = (RouteSettings settings) {
   switch (settings.name) {
     case "/":
       return MaterialPageRoute(builder: (builder) => const SplashScreen());
-    // return MaterialPageRoute(builder: (builder) => TimeSheetLogin());
+      
+
    case "/login":
       return MaterialPageRoute(builder: (builder) => const LoginScreen());
 

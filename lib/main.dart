@@ -1,8 +1,7 @@
-import 'package:cutomer_app/Screens/LoginScreen.dart';
-// import 'package:cutomer_app/Screens/splashScreen.dart';
+// import 'package:cutomer_app/Screens/LoginScreen.dart';
+import 'package:cutomer_app/Location/LocationScreen.dart';
+import 'package:cutomer_app/Screens/splashScreen.dart';
 import 'package:flutter/material.dart';
-// import 'package:login/Login/screens/LoginScreen.dart';
-// import 'package:login/Login/screens/splashscreen.dart';
 // import 'package:login/Navigation/onGenerateRoute.dart';
 
 void main() {
@@ -26,7 +25,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // onGenerateRoute: onGenerateRoute,
-      home: const LoginScreen(),
+      home: const LocationScreen(),
     );
   }
 }

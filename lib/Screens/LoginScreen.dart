@@ -162,14 +162,14 @@ class LoginScreenState extends State<LoginScreen> {
                               const SizedBox(height: 10.0),
                               Row(
                                 children: [
-                                  // Checkbox(
-                                  //   value: agreeToTerms,
-                                  //   onChanged: (bool? newValue) {
-                                  //     setState(() {
-                                  //       agreeToTerms = newValue ?? false;
-                                  //     });
-                                  //   },
-                                  // ),
+                                  Checkbox(
+                                    value: agreeToTerms,
+                                    onChanged: (bool? newValue) {
+                                      setState(() {
+                                        agreeToTerms = newValue ?? false;
+                                      });
+                                    },
+                                  ),
                                   const Text('I Agree to terms &'),
                                   GestureDetector(
                                     // onTap: () {
