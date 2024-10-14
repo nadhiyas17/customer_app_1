@@ -1,91 +1,64 @@
-// ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:sc_app/Login/OTPLogic.dart';
-// import 'package:sc_app/Login/OTPScreen.dart';
+// import 'OTP/OtpScreen.dart';
+import 'OtpScreen.dart';
 
-// import '../Screens/Dashboard/Dashboard.dart';
-
-// Import the FirebaseAuth package
-
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
+class Loginscreen extends StatefulWidget {
   @override
-  LoginScreenState createState() => LoginScreenState();
+  _LoginscreenState createState() => _LoginscreenState();
 }
 
-class LoginScreenState extends State<LoginScreen> {
+class _LoginscreenState extends State<Loginscreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
-  bool agreeToTerms = false;
+  bool agreeToTerms = true;
   String? errorMessage;
+  String? phoneNumber; // This will store the formatted phone number
 
-  String? phoneNumber; // This will store the error message
+  // Validation for the name field
+  String? validateName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your name';
+    }
+    return null;
+  }
 
-  // Add your validation functions here
-  // String? validateName(String? value) {
-  //   if (value == null || value.isEmpty) {
-  //     return 'Please enter your name';
-  //   }
-  //   return null;
-
-  //   // Your validation logic
-  // }
-
+  // Validation for the mobile field
   String? validateMobile(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a mobile number';
     } else if (value.length < 10) {
       return 'Mobile number must be at least 10 digits';
-    } else if (!RegExp(r'^\+?[1-9]\d{1,14}$').hasMatch(phoneNumber!)) {
+    } else if (!RegExp(r'^\+?[1-9]\d{1,14}$').hasMatch('+91${value.trim()}')) {
       return 'Invalid phone number format';
     }
     return null;
-
-    // Your validation logic
   }
 
-  _validateAndProceed() {
-    // Check if the checkbox is selected
-    if (agreeToTerms) {
-      // Navigate to the next screen
-      return null;
-    } else {
-      // Show an error message if checkbox is not selected
+  // Handle form submission
+  void _submitForm() {
+    if (_formKey.currentState!.validate() && agreeToTerms) {
+      // Make sure the phoneNumber is formatted properly
+      phoneNumber = '+91${_mobileController.text.trim()}';
 
-      return "You must agree to the terms to proceed.";
+      // Navigate to OTP Screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (ctx) => OtpScreen(
+            phoneNumber: phoneNumber!,
+            verificationId: "123456",
+            welcomeName: _nameController.text,
+          ),
+        ),
+      );
+    } else if (!agreeToTerms) {
+      setState(() {
+        errorMessage = "You must agree to the terms to proceed.";
+      });
     }
   }
-
-  // void _submitForm() {
-  //   if (_formKey.currentState!.validate() && agreeToTerms) {
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder:(context) => DashboardScreen()));
-  //     //       builder: (ctx) => OtpScreen(
-  //     //           phoneNumber: phoneNumber!,
-  //     //           verificationId: "123456",
-  //     //           welcomeName: _nameController.text)),
-  //     // );
-  //     // Your form submission logic
-  //   };
-  // }
-
-  @override
-  // void initState() {
-  //   super.initState();
-  //   _mobileController.addListener(_updatePhoneNumber);
-  // }
-
-  // void _updatePhoneNumber() {
-  //   setState(() {
-  //     phoneNumber = '+91${_mobileController.text.trim()}';
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +71,7 @@ class LoginScreenState extends State<LoginScreen> {
               children: [
                 // Top section with image
                 ClipRRect(
-                  borderRadius: const BorderRadius.only(
+                  borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(30.0),
                     bottomRight: Radius.circular(30.0),
                   ),
@@ -108,55 +81,54 @@ class LoginScreenState extends State<LoginScreen> {
                     fit: BoxFit.cover,
                   ),
                 ),
-
                 Positioned(
                   top: 150,
                   left: 20,
                   right: 20,
                   child: Column(
                     children: [
-                      const SizedBox(height: 220.0), // Space for the image
+                      SizedBox(height: 210.0), // Space for the image
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Form(
-                          key: _formKey, // Assign the form key
+                          key: _formKey,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Center(
-                                child: Text(
-                                  'Signup/Register',
-                                  style: TextStyle(
-                                    fontSize: 24.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF6B3FA0),
+                              SizedBox(height: 20.0),
+                              Align(
+                                alignment: Alignment.topLeft,
+                                child: const Center(
+                                  child: Text(
+                                    'Sign In / Sign Up',
+                                    style: TextStyle(
+                                      fontSize: 24.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF6B3FA0),
+                                    ),
                                   ),
-                                  
                                 ),
-                                
-                              ),
-
-                              TextFormField(
-                                controller: _nameController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Enter Full Name',
-                                  border: OutlineInputBorder(),
-                                ),
-                                // validator: validateName,
                               ),
                               const SizedBox(height: 20.0),
                               TextFormField(
-                                // minLines: 10,
+                                controller: _nameController,
+                                decoration: InputDecoration(
+                                  labelText: 'Enter Full Name',
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: validateName,
+                              ),
+                              SizedBox(height: 15.0),
+                              TextFormField(
                                 controller: _mobileController,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   labelText: 'Enter Mobile Number',
                                   border: OutlineInputBorder(),
                                 ),
                                 keyboardType: TextInputType.phone,
                                 validator: validateMobile,
                                 inputFormatters: [
-                                  LengthLimitingTextInputFormatter(
-                                      10), // Set the maximum length
+                                  LengthLimitingTextInputFormatter(10),
                                 ],
                               ),
                               const SizedBox(height: 10.0),
@@ -166,55 +138,51 @@ class LoginScreenState extends State<LoginScreen> {
                                     value: agreeToTerms,
                                     onChanged: (bool? newValue) {
                                       setState(() {
-                                        agreeToTerms = newValue ?? false;
+                                        agreeToTerms = newValue ?? true;
                                       });
                                     },
                                   ),
-                                  const Text('I Agree to terms &'),
+                                  Text('I Agree to '),
                                   GestureDetector(
-                                    // onTap: () {
-                                    //   // Navigate to terms and conditions
-                                    // },
-                                    child: const Text(
-                                      ' Conditions',
+                                    onTap: () {
+                                      // Handle the tap here to navigate to Terms & Conditions page
+                                      print('Terms & Conditions clicked');
+                                    },
+                                    child: Text(
+                                      'Terms & Conditions',
                                       style: TextStyle(
-                                        color: Color(0xFF6B3FA0),
-                                        decoration: TextDecoration.underline,
+                                        color: Colors.blue,
                                       ),
                                     ),
                                   ),
-                                  if (errorMessage != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 10.0),
-                                      child: Text(
-                                        errorMessage!,
-                                        style: const TextStyle(
-                                            color: Colors.red, fontSize: 14),
-                                      ),
-                                    ),
                                 ],
                               ),
-                              const SizedBox(height: 10.0),
+                              if (errorMessage != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 10.0),
+                                  child: Text(
+                                    errorMessage!,
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                              SizedBox(height: 10.0),
                               Center(
                                 child: ElevatedButton(
-                                  onPressed: () {
-                                    // SubmitPhoneNumber submitPhoneNumber =
-                                    //     SubmitPhoneNumber();
-                                    // submitPhoneNumber.submitPhoneNumber(
-                                    //     mobileController:
-                                    //         _mobileController.text);
-                                    // _submitForm();
-                                  },
+                                  onPressed: _submitForm,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:
-                                        const Color.fromARGB(255, 96, 15, 196),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 15.0, horizontal: 60.0),
+                                        Color.fromARGB(255, 96, 15, 196),
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 15.0,
+                                      horizontal: 60.0,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(30.0),
                                     ),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'GET OTP',
                                     style: TextStyle(color: Colors.white),
                                   ),
@@ -224,11 +192,11 @@ class LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 10.0),
-                      const Padding(
-                        padding: EdgeInsets.all(8.0),
+                      SizedBox(height: 10.0),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'This site is protected by reCAPTCHA and the Google [Privacy Policy](https://policies.google.com/privacy) and [Terms of Service](https://policies.google.com/terms) apply.',
+                          'Copyright © 2024 - SureCare',
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 12.0),
                         ),
@@ -238,7 +206,6 @@ class LoginScreenState extends State<LoginScreen> {
                 ),
               ],
             ),
-            // Privacy section at the bottom
           ],
         ),
       ),

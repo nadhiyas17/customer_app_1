@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
     _controller.addListener(() {
       if (_controller.value.isInitialized &&
           _controller.value.position == _controller.value.duration) {
-        // Navigator.pushReplacementNamed(context, '/LoginScreen');
+        Navigator.pushReplacementNamed(context, '/login');
       }
     });
   }

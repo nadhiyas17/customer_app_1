@@ -1,6 +1,17 @@
 // import 'package:cutomer_app/Screens/LoginScreen.dart';
+// import 'package:cutomer_app/Location/LocationScreen.dart';
+import 'package:cutomer_app/Address/AddAddressScreen.dart';
+import 'package:cutomer_app/Address/SelectAddressScreen.dart';
 import 'package:cutomer_app/Location/LocationScreen.dart';
+import 'package:cutomer_app/Routes/Navigation.dart';
+import 'package:cutomer_app/Screens/LoginScreen.dart';
+import 'package:cutomer_app/Screens/OtpScreen.dart';
 import 'package:cutomer_app/Screens/splashScreen.dart';
+import 'package:cutomer_app/Terms/TermsAndConditionsScreen.dart';
+import 'package:cutomer_app/verification/registrationsuccess.dart';
+import 'package:cutomer_app/verification/verficationmessage.dart';
+// import 'package:cutomer_app/Screens/splashScreen.dart';
+// import 'package:cutomer_app/Terms/TermsAndConditionsScreen.dart';
 import 'package:flutter/material.dart';
 // import 'package:login/Navigation/onGenerateRoute.dart';
 
@@ -25,7 +36,13 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // onGenerateRoute: onGenerateRoute,
-      home: const LocationScreen(),
+      // home: OtpScreen(phoneNumber: '', verificationId: '', welcomeName: '',),
+      // home: SelectAddressScreen(),
+      // home: registrationsuccess(),
+      // home: LoginScreen(),
+      // home: AddAddressScreen(),
+      // home:LocationScreen();
+     onGenerateRoute: onGenerateRoute,
     );
   }
 }

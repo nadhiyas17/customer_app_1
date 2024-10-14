@@ -20,12 +20,41 @@ class _LocationScreenState extends State<LocationScreen> {
   late GoogleMapController _mapController;
   final LatLng _initialPosition =
       const LatLng(20.5937, 78.9629); // Default location (India)
-
-  @override
+       @override
   void initState() {
     super.initState();
+    _checkAndRequestLocationPermission();
     _getLocation();
+
+    
   }
+
+  // Function to check and request location permission
+  Future<void> _checkAndRequestLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied 
+ ||
+        permission == LocationPermission.deniedForever) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.whileInUse 
+ ||
+        permission == LocationPermission.always) 
+ {
+      _getLocation();
+    } else {
+      setState(() {
+        locationMessage = "Location permission denied.";
+        isLoading = false;
+      });
+      showToast("GPS is disabled. Please enable it to access your location.");
+    }
+  }
+
+  @override
+  
 
   // Function to get the current location of the user
   Future<void> _getLocation() async {
@@ -148,20 +177,22 @@ class _LocationScreenState extends State<LocationScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 5),
-                  // Text(
-                  //   locationMessage ?? "",
-                  //   style: const TextStyle(fontSize: 16),
-                  // ),
+                  Text(
+                    locationMessage ?? "",
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   const SizedBox(height: 20),
-                  // ElevatedButton(
-                  //   onPressed: _openMap, // Button to open the map
-                  //   child: const Text("Show on Map"),
-                  // ),
+                  ElevatedButton(
+                    onPressed: _openMap, // Button to open the map
+                    child: const Text("Show on Map"),
+                  ),
                 ],
               ),
       ),
     );
   }
+  
+  void showToast(String s) {}
 }
 
 // MapScreen Widget to display Google Maps
