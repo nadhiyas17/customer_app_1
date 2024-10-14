@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_maps_webservices/places.dart';
 import 'package:geolocator/geolocator.dart';
@@ -6,7 +5,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
-const kGoogleApiKey = 'AIzaSyDY_mNvqPbcGCRiwor1IVcJ5pyRmstm9XY'; // Replace with your API key
+const kGoogleApiKey =
+    'AIzaSyDY_mNvqPbcGCRiwor1IVcJ5pyRmstm9XY'; // Replace with your API key
 final GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
 class CurrentLocation extends StatefulWidget {
@@ -40,6 +40,14 @@ class _CurrentLocationState extends State<CurrentLocation> {
         permission = await Geolocator.requestPermission();
       }
 
+      if (permission == LocationPermission.deniedForever) {
+        setState(() {
+          _address = "Location permissions are permanently denied.";
+          _isLoading = false;
+        });
+        return;
+      }
+
       if (permission == LocationPermission.denied) {
         setState(() {
           _address = "Location permissions are denied.";
@@ -49,8 +57,8 @@ class _CurrentLocationState extends State<CurrentLocation> {
       }
 
       LocationSettings locationSettings = LocationSettings(
-        accuracy: LocationAccuracy.high, // You can use LocationAccuracy.low, medium, etc.
-        distanceFilter: 100, // Optional: distance in meters before location updates
+        accuracy: LocationAccuracy.high, // High accuracy for location
+        distanceFilter: 100, // Optional: distance in meters before updates
       );
 
       Position position = await Geolocator.getCurrentPosition(
@@ -73,9 +81,11 @@ class _CurrentLocationState extends State<CurrentLocation> {
           _isLoading = false;
         });
 
-        // Check if _mapController is initialized
-        if (_mapController != null) {
-          _mapController.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition, 16));
+        // Check if _mapController is initialized and the widget is still mounted
+        if (_mapController != null && mounted) {
+          _mapController.animateCamera(
+            CameraUpdate.newLatLngZoom(_currentPosition, 16),
+          );
         }
       } else {
         setState(() {
@@ -99,7 +109,8 @@ class _CurrentLocationState extends State<CurrentLocation> {
     // Store address and navigate to the dashboard
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => DashboardScreen()), // Your dashboard screen
+      MaterialPageRoute(
+          builder: (context) => DashboardScreen()), // Your dashboard screen
     );
     print("Selected Address: " + _address);
   }
@@ -122,11 +133,13 @@ class _CurrentLocationState extends State<CurrentLocation> {
             child: SizedBox(
               width: double.infinity, // Ensure the button takes the full width
               child: ElevatedButton.icon(
-                onPressed: _getCurrentLocation, // Trigger search on button press
+                onPressed:
+                    _getCurrentLocation, // Trigger search on button press
                 icon: Icon(Icons.my_location),
                 label: Text("Locate Me"),
                 style: ElevatedButton.styleFrom(
-                  alignment: Alignment.centerLeft, // Align the content to the left
+                  alignment:
+                      Alignment.centerLeft, // Align the content to the left
                   padding: EdgeInsets.all(15.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(0),
@@ -185,10 +198,13 @@ class _CurrentLocationState extends State<CurrentLocation> {
                         child: Text("Confirm Address"),
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(vertical: 15.0),
-                          foregroundColor: Colors.white, // Set text color to white
-                          backgroundColor: Colors.green, // Set background color to green
+                          foregroundColor:
+                              Colors.white, // Set text color to white
+                          backgroundColor:
+                              Colors.green, // Set background color to green
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10), // Rounded corners
+                            borderRadius:
+                                BorderRadius.circular(10), // Rounded corners
                           ),
                         ),
                       ),

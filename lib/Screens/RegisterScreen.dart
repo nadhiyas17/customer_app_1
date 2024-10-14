@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import '../APIs/RegisterAPI.dart';
 import '../Modals/RegisterModel.dart';
@@ -19,111 +21,75 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
 
-  final FocusNode _emailFocusNode = FocusNode();
-  final FocusNode _ageFocusNode = FocusNode();
   final ApiService apiService = ApiService();
-  final FocusNode _bloodGroupFocusNode = FocusNode();
+
   String _gender = 'Male';
-  String _bloodGroup = 'A+';
+  String _bloodGroup = 'NA';
   String? errorMessage;
 
   @override
   void initState() {
     super.initState();
     _nameController.text = widget.fullName;
-    _emailFocusNode.addListener(_hideErrorMessage);
-    _ageFocusNode.addListener(_hideErrorMessage);
-    _bloodGroupFocusNode.addListener(_hideErrorMessage);
   }
 
   @override
   void dispose() {
-    _emailFocusNode.dispose();
-    _ageFocusNode.dispose();
-    _bloodGroupFocusNode.dispose();
     _nameController.dispose();
     _emailController.dispose();
     _ageController.dispose();
     super.dispose();
   }
 
-  void _hideErrorMessage() {
-    if (_emailFocusNode.hasFocus ||
-        _ageFocusNode.hasFocus ||
-        _bloodGroupFocusNode.hasFocus) {
-      setState(() {
-        errorMessage = null;
-      });
-    }
-  }
-
-  String? validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter an email';
-    } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-      return 'Please enter a valid email';
-    }
-    return null;
-  }
-
-  String? validateAge(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter your age';
-    } else if (int.tryParse(value) == null || int.parse(value) < 1) {
-      return 'Please enter a valid age';
-    }
-    return null;
-  }
-
   Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      Navigator.of(context).pushNamed('/currentloaction');
-    }
     // if (_formKey.currentState!.validate()) {
-    //   context.loaderOverlay.show(); // Show loading overlay
-
-    //   final UserModel user = UserModel(
-    //     name: _nameController.text,
-    //     email: _emailController.text,
-    //     age: _ageController.text,
-    //     gender: _gender,
-    //     bloodGroup: _bloodGroup,
-    //   );
-
-    //   try {
-    //     final response = await apiService.registerUser(user);
-    //     context.loaderOverlay.hide(); // Hide loading overlay
-
-    //     Fluttertoast.showToast(
-    //       msg: response['message'] ?? "Basic Information Saved",
-    //       toastLength: Toast.LENGTH_SHORT,
-    //       gravity: ToastGravity.BOTTOM,
-    //       backgroundColor: const Color.fromARGB(255, 0, 70, 10),
-    //       textColor: Colors.white,
-    //       fontSize: 16.0,
-    //     );
-
-    //     Navigator.of(context).pushNamed('/currentloaction');
-    //   } catch (e) {
-    //     context.loaderOverlay.hide(); // Hide loading overlay on error
-    //     setState(() {
-    //       errorMessage = 'Failed to submit data. Error: $e';
-    //     });
-
-    //     Fluttertoast.showToast(
-    //       msg: errorMessage!,
-    //       toastLength: Toast.LENGTH_SHORT,
-    //       gravity: ToastGravity.BOTTOM,
-    //       backgroundColor: Colors.red,
-    //       textColor: Colors.white,
-    //       fontSize: 16.0,
-    //     );
-    //   }
-    // } else {
-    //   setState(() {
-    //     errorMessage = "Please fill in all required fields.";
-    //   });
+    //   Navigator.of(context).pushNamed('/currentloaction');
     // }
+    if (_formKey.currentState!.validate()) {
+      context.loaderOverlay.show(); // Show loading overlay
+
+      final UserModel user = UserModel(
+        name: _nameController.text,
+        email: _emailController.text,
+        age: _ageController.text,
+        gender: _gender,
+        bloodGroup: _bloodGroup,
+      );
+
+      try {
+        final response = await apiService.registerUser(user);
+        context.loaderOverlay.hide(); // Hide loading overlay
+
+        Fluttertoast.showToast(
+          msg: response['message'] ?? "Basic Information Saved",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: const Color.fromARGB(255, 0, 70, 10),
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+
+        Navigator.of(context).pushNamed('/currentloaction');
+      } catch (e) {
+        context.loaderOverlay.hide(); // Hide loading overlay on error
+        setState(() {
+          errorMessage = 'Failed to submit data. Error: $e';
+        });
+
+        Fluttertoast.showToast(
+          msg: errorMessage!,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
+    } else {
+      // setState(() {
+      //   errorMessage = "Please fill in all required fields.";
+      // });
+    }
   }
 
   @override
@@ -258,12 +224,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               Expanded(
                                 child: DropdownButtonFormField<String>(
                                   value: _bloodGroup,
-                                  focusNode: _bloodGroupFocusNode,
                                   decoration: InputDecoration(
-                                    labelText: 'Blood Group',
+                                    labelText: 'Blood Group (Optional)',
                                     border: OutlineInputBorder(),
                                   ),
                                   items: [
+                                    'NA',
                                     'A+',
                                     'B+',
                                     'AB+',
@@ -271,7 +237,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     'A-',
                                     'B-',
                                     'AB-',
-                                    'O-'
+                                    'O-',
                                   ]
                                       .map((bloodType) => DropdownMenuItem(
                                             child: Text(bloodType),
@@ -283,25 +249,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       _bloodGroup = value!;
                                     });
                                   },
+                                  // If you don't want any validation, don't add a validator here.
+                                  validator:
+                                      null, // No validation, because it's optional
                                 ),
                               ),
                               SizedBox(width: 20.0),
                               Expanded(
                                 child: TextFormField(
                                   controller: _ageController,
-                                  focusNode: _ageFocusNode,
                                   decoration: InputDecoration(
                                     labelText: 'Age',
                                     border: OutlineInputBorder(),
                                   ),
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(3),
+                                  ],
                                   keyboardType: TextInputType.number,
-                                  validator: validateAge,
-                                  onChanged: (value) {
-                                    if (_formKey.currentState!.validate()) {
-                                      setState(() {
-                                        errorMessage = null;
-                                      });
+                                  autovalidateMode: AutovalidateMode.onUnfocus,
+                                  validator: (value) {
+                                    value = value?.trim();
+                                    if (value == null || value.isEmpty) {
+                                      return "Field should not be empty";
+                                    } else if (!GetUtils.isNumericOnly(value)) {
+                                      return "Enter a numeric value";
                                     }
+                                    return null; // No error
                                   },
                                 ),
                               ),
@@ -310,19 +283,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: 20.0),
                           TextFormField(
                             controller: _emailController,
-                            focusNode: _emailFocusNode,
                             decoration: InputDecoration(
                               labelText: 'Enter Email ID',
                               border: OutlineInputBorder(),
                             ),
                             keyboardType: TextInputType.emailAddress,
-                            validator: validateEmail,
-                            onChanged: (value) {
-                              if (_formKey.currentState!.validate()) {
-                                setState(() {
-                                  errorMessage = null;
-                                });
+                            autovalidateMode: AutovalidateMode.onUnfocus,
+                            validator: (value) {
+                              value = value?.trim();
+                              if (value == null || value.isEmpty) {
+                                return "Filed Shold not be empty";
+                              } else if (!GetUtils.isEmail(value)) {
+                                return "Enter a valid username";
                               }
+                              return null; // No error
                             },
                           ),
                           const SizedBox(height: 20.0),
