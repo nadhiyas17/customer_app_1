@@ -20,29 +20,24 @@ class _LocationScreenState extends State<LocationScreen> {
   late GoogleMapController _mapController;
   final LatLng _initialPosition =
       const LatLng(20.5937, 78.9629); // Default location (India)
-       @override
+  @override
   void initState() {
     super.initState();
     _checkAndRequestLocationPermission();
     _getLocation();
-
-    
   }
 
   // Function to check and request location permission
   Future<void> _checkAndRequestLocationPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
 
-    if (permission == LocationPermission.denied 
- ||
+    if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
       permission = await Geolocator.requestPermission();
     }
 
-    if (permission == LocationPermission.whileInUse 
- ||
-        permission == LocationPermission.always) 
- {
+    if (permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always) {
       _getLocation();
     } else {
       setState(() {
@@ -54,7 +49,6 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 
   @override
-  
 
   // Function to get the current location of the user
   Future<void> _getLocation() async {
@@ -71,8 +65,15 @@ class _LocationScreenState extends State<LocationScreen> {
     if (permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always) {
       try {
+        LocationSettings locationSettings = LocationSettings(
+          accuracy: LocationAccuracy
+              .high, // You can use LocationAccuracy.low, medium, etc.
+          distanceFilter:
+              100, // Optional: distance in meters before location updates
+        );
+
         Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
+          locationSettings: locationSettings,
         );
         setState(() {
           _currentPosition = position;
@@ -86,6 +87,9 @@ class _LocationScreenState extends State<LocationScreen> {
         // Send the location and address to the backend
         _sendLocationToBackend(
             position.latitude, position.longitude, _address!);
+        await Future.delayed(Duration(seconds: 3));
+
+        Navigator.pushReplacementNamed(context, '/login');
       } catch (e) {
         setState(() {
           locationMessage = "Error getting location: $e";
@@ -109,7 +113,7 @@ class _LocationScreenState extends State<LocationScreen> {
         Placemark place = placemarks[0];
         // Formatting the address to match the desired structure
         _address =
-            "${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.postalCode}, ${place.country}";
+            "${place.street}, ${place.locality},${place.subLocality}, ${place.administrativeArea}, ${place.postalCode}, ${place.country}";
         setState(() {}); // Update UI with the formatted address
       }
     } catch (e) {
@@ -141,18 +145,18 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 
   // Function to open Google Maps with the current location
-  void _openMap() {
-    if (_currentPosition != null) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => MapScreen(
-            latitude: _currentPosition!.latitude,
-            longitude: _currentPosition!.longitude,
-          ),
-        ),
-      );
-    }
-  }
+  // void _openMap() {
+  //   if (_currentPosition != null) {
+  //     Navigator.of(context).push(
+  //       MaterialPageRoute(
+  //         builder: (context) => MapScreen(
+  //           latitude: _currentPosition!.latitude,
+  //           longitude: _currentPosition!.longitude,
+  //         ),
+  //       ),
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -160,64 +164,68 @@ class _LocationScreenState extends State<LocationScreen> {
       body: Center(
         child: isLoading
             ? const CircularProgressIndicator()
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.location_on, size: 60, color: Colors.green),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Delivering service at",
-                    style: TextStyle(fontSize: 16, color: Colors.green),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    _address ?? "",
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    locationMessage ?? "",
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _openMap, // Button to open the map
-                    child: const Text("Show on Map"),
-                  ),
-                ],
+            : Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.location_on,
+                        size: 60, color: Colors.green),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Current Location  ",
+                      style: TextStyle(fontSize: 20, color: Colors.green),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      _address ?? "",
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 5),
+                    // Text(
+                    //   locationMessage ?? "",
+                    //   style: const TextStyle(fontSize: 16),
+                    // ),
+                    // const SizedBox(height: 20),
+                    // ElevatedButton(
+                    //   onPressed: _openMap, // Button to open the map
+                    //   child: const Text("Show on Map"),
+                    // ),
+                  ],
+                ),
               ),
       ),
     );
   }
-  
+
   void showToast(String s) {}
 }
 
 // MapScreen Widget to display Google Maps
-class MapScreen extends StatelessWidget {
-  final double latitude;
-  final double longitude;
+// class MapScreen extends StatelessWidget {
+//   final double latitude;
+//   final double longitude;
 
-  const MapScreen({super.key, required this.latitude, required this.longitude});
+//   const MapScreen({super.key, required this.latitude, required this.longitude});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Your Location")),
-      body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: LatLng(latitude, longitude),
-          zoom: 15,
-        ),
-        markers: {
-          Marker(
-            markerId: const MarkerId("currentLocation"),
-            position: LatLng(latitude, longitude),
-          ),
-        },
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: const Text("Your Location")),
+//       body: GoogleMap(
+//         initialCameraPosition: CameraPosition(
+//           target: LatLng(latitude, longitude),
+//           zoom: 15,
+//         ),
+//         markers: {
+//           Marker(
+//             markerId: const MarkerId("currentLocation"),
+//             position: LatLng(latitude, longitude),
+//           ),
+//         },
+//       ),
+//     );
+//   }
+// }

@@ -22,6 +22,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     _getCurrentLocation();
   }
 
+  
+
   // Function to get the current location of the user
   Future<void> _getCurrentLocation() async {
     try {

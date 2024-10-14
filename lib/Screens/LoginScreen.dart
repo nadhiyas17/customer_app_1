@@ -145,6 +145,9 @@ class _LoginscreenState extends State<Loginscreen> {
                                   Text('I Agree to '),
                                   GestureDetector(
                                     onTap: () {
+                                      Navigator.of(context).pushNamed(
+                                        '/termsandcondition',
+                                      );
                                       // Handle the tap here to navigate to Terms & Conditions page
                                       print('Terms & Conditions clicked');
                                     },

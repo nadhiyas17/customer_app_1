@@ -5,6 +5,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 // ignore: depend_on_referenced_packages
 import 'package:pinput/pinput.dart';
 
+import '../verification/verficationmessage.dart';
+
 // import '../../utils.dart/HelpScreen.dart';
 // import '../LoginScreen.dart';
 // import '../Dashboard/Dashboard.dart';
@@ -68,22 +70,34 @@ class _OtpScreenState extends State<OtpScreen> {
     });
 
     // Simulating async OTP verification
-    Future.delayed(Duration(seconds: 2), () {
+
+    // Simulating async OTP verification
+    Future.delayed(Duration(seconds: 2), () async {
       if (otpCode == "123456") {
         // Success scenario
-        Fluttertoast.showToast(
-          msg: 'OTP Verified Successfully!',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+        // Fluttertoast.showToast(
+        //   msg: 'OTP Verified Successfully!',
+        //   toastLength: Toast.LENGTH_SHORT,
+        //   gravity: ToastGravity.BOTTOM,
+        //   backgroundColor: Colors.green,
+        //   textColor: Colors.white,
+        //   fontSize: 16.0,
+        // );
 
+        // Show dialog before navigating
+        DialogHelper.showVerificationDialog(context);
+
+        // Wait for 3 seconds before navigating
+        setState(() {
+          _isLoading = false; // Show loading indicator
+          _timer.cancel();
+        });
+        await Future.delayed(Duration(seconds: 3));
         // Navigate to the Dashboard on successful verification
-   Navigator.of(context).pushReplacementNamed('/registerScreen', arguments: widget.welcomeName);
-
-
+        Navigator.of(context).pushReplacementNamed(
+          '/registerScreen',
+          arguments: widget.welcomeName,
+        );
       } else {
         // Handle failed OTP verification
         setState(() {
