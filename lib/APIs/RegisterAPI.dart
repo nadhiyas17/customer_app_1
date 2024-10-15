@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
- 
+
 import '../Modals/RegisterModel.dart';
 
 class ApiService {
@@ -8,7 +8,7 @@ class ApiService {
   static const String _baseUrl = "https://api-generator.retool.com/Y45Av7";
 
   // Method to register the user
-  Future<Map<String, dynamic>> registerUser(UserModel user) async {
+  Future<Map<String, dynamic>> registerUser(RegisterModel user) async {
     final url = Uri.parse('$_baseUrl/data');
 
     try {

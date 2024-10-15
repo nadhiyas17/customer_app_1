@@ -75,6 +75,7 @@ class _LocationScreenState extends State<LocationScreen> {
         Position position = await Geolocator.getCurrentPosition(
           locationSettings: locationSettings,
         );
+
         setState(() {
           _currentPosition = position;
           locationMessage = "${position.latitude}, ${position.longitude}";

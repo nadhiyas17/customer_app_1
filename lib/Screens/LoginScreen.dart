@@ -1,3 +1,4 @@
+import 'package:cutomer_app/APIs/LoginAPI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -13,26 +14,58 @@ class _LoginscreenState extends State<Loginscreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
 
+  var getOTPButton = "GET OTP".obs;
+
+  var isLoading = false.obs;
   bool agreeToTerms = true; // Initialize to false to require agreement
   String? phoneNumber; // This will store the formatted phone number
   var errorMessage = ''.obs; // Observable for error message
-
-  void _submitForm() {
+  final LoginApiService _loginapiService = LoginApiService();
+  void _submitForm() async {
     if (_formKey.currentState!.validate() && agreeToTerms) {
+      getOTPButton.value = "Sending Otp...";
+      // Show sending OTP message
+      isLoading.value = true; // Start loading
+
       // Format the phone number properly
       phoneNumber = '+91${_mobileController.text.trim()}';
 
-      // Navigate to OTP Screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (ctx) => OtpScreen(
-            phoneNumber: phoneNumber!,
-            verificationId: "123456",
-            welcomeName: _nameController.text,
+      final fullname = _nameController.text.trim();
+      final mobileNumber = _mobileController.text.trim();
+
+      try {
+        // Call the API service to sign in or sign up
+        final response =
+            await _loginapiService.signInOrSignUp(fullname, mobileNumber);
+
+        // Check if the response is successful or contains verification ID
+        // if (response != null && response['verificationId'] != null) {
+        // Navigate to OTP Screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (ctx) => OtpScreen(
+              phoneNumber: phoneNumber!,
+              verificationId: "123456",
+              // verificationId: response[
+              //     'verificationId'], // Use actual verification ID from response
+              welcomeName: fullname, // Use trimmed fullname
+            ),
           ),
-        ),
-      );
+        );
+        // } else {
+        //   // Handle unsuccessful response
+        //   errorMessage.value =
+        //       "Failed to sign in or sign up. Please try again.";
+        // }
+      } catch (e) {
+        // Handle the error (e.g., network issues, API errors)
+        errorMessage.value =
+            "An error occurred: ${e.toString()}"; // Display error message
+      } finally {
+        // Reset loading state
+        isLoading.value = false; // Hide loading state
+      }
     } else if (!agreeToTerms) {
       errorMessage.value = "You must agree to the terms to proceed.";
     }
@@ -103,7 +136,7 @@ class _LoginscreenState extends State<Loginscreen> {
                               labelText: 'Enter Mobile Number',
                               border: OutlineInputBorder(),
                             ),
-                            keyboardType: TextInputType.phone,
+                            keyboardType: TextInputType.number,
                             autovalidateMode: AutovalidateMode.onUnfocus,
                             validator: (value) {
                               value = value?.trim();
@@ -160,23 +193,22 @@ class _LoginscreenState extends State<Loginscreen> {
                           // Submit Button
                           Center(
                             child: ElevatedButton(
-                              onPressed: _submitForm,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Color.fromARGB(255, 96, 15, 196),
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 15.0,
-                                  horizontal: 60.0,
+                                onPressed: _submitForm,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Color.fromARGB(255, 96, 15, 196),
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 15.0,
+                                    horizontal: 60.0,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                ),
-                              ),
-                              child: Text(
-                                'GET OTP',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
+                                child: Obx(() => Text(
+                                      getOTPButton.value,
+                                      style: TextStyle(color: Colors.white),
+                                    ))),
                           ),
                         ],
                       ),

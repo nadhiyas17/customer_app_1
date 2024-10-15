@@ -30,7 +30,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.fullName;
+    _nameController.text = widget.fullName.toLowerCase();
   }
 
   @override
@@ -48,10 +48,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_formKey.currentState!.validate()) {
       context.loaderOverlay.show(); // Show loading overlay
 
-      final UserModel user = UserModel(
-        name: _nameController.text,
-        email: _emailController.text,
-        age: _ageController.text,
+      final RegisterModel user = RegisterModel(
+        // name: _nameController.text,
+        emailId: _emailController.text,
+        age: int.tryParse(_ageController.text),
         gender: _gender,
         bloodGroup: _bloodGroup,
       );
@@ -69,7 +69,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           fontSize: 16.0,
         );
 
-        Navigator.of(context).pushNamed('/currentloaction');
+        Navigator.of(context).pushNamed('/address');
       } catch (e) {
         context.loaderOverlay.hide(); // Hide loading overlay on error
         setState(() {
@@ -133,7 +133,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Align(
                       alignment: Alignment(-1.0, 0.0),
                       child: Text(
-                        'Basic Information',
+                        'Health Profile',
                         style: TextStyle(
                           fontSize: 24.0,
                           fontWeight: FontWeight.bold,
@@ -294,7 +294,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               if (value == null || value.isEmpty) {
                                 return "Filed Shold not be empty";
                               } else if (!GetUtils.isEmail(value)) {
-                                return "Enter a valid username";
+                                return "Enter a valid Email";
                               }
                               return null; // No error
                             },

@@ -5,6 +5,8 @@ import 'package:cutomer_app/Screens/splashScreen.dart';
 import 'package:cutomer_app/Terms/TermsAndConditionsScreen.dart';
 import 'package:flutter/material.dart';
 
+import '../Address/AddAddressScreen.dart';
+import '../Address/CurrentLocation.dart';
 import '../Address/CurrentLocationScreen.dart';
 import '../Screens/RegisterScreen.dart';
 
@@ -13,6 +15,10 @@ var onGenerateRoute = (RouteSettings settings) {
   switch (settings.name) {
     case "/":
       return MaterialPageRoute(builder: (builder) => const SplashScreen());
+
+    //  case "/":
+    //     return MaterialPageRoute(builder: (builder) => const AddAddressScreen());
+
     case "/location":
       return MaterialPageRoute(builder: (builder) => const LocationScreen());
     case "/login":
@@ -32,8 +38,11 @@ var onGenerateRoute = (RouteSettings settings) {
       return MaterialPageRoute(
           builder: (_) => RegisterScreen(fullName: fullName));
 
+    case "/address":
+      return MaterialPageRoute(builder: (builder) => AddAddressScreen());
+
     case "/currentloaction":
-      return MaterialPageRoute(builder: (builder) => CurrentLocation());
+      return MaterialPageRoute(builder: (builder) => CurrentLocationScreen());
 
 // RegisterScreen
     default:

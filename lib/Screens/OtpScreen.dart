@@ -2,9 +2,11 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 // ignore: depend_on_referenced_packages
 import 'package:pinput/pinput.dart';
 
+import '../APIs/LoginAPI.dart';
 import '../verification/verficationmessage.dart';
 
 // import '../../utils.dart/HelpScreen.dart';
@@ -41,6 +43,35 @@ class _OtpScreenState extends State<OtpScreen> {
     startTimer(); // Start the timer
   }
 
+   final TextEditingController _otpController = TextEditingController();
+  var isLoading = false.obs;
+  var errorMessage = ''.obs;
+  final LoginApiService _loginApiService = LoginApiService();
+
+  void _verifyOtp() async { // TODO:check once this function
+    if (_otpController.text.isEmpty) {
+      errorMessage.value = "Please enter the OTP.";
+      return;
+    }
+
+    isLoading.value = true; // Start loading
+
+    try {
+      final response = await _loginApiService.verifyOtp(widget.phoneNumber, _otpController.text.trim());
+      // Handle successful OTP verification
+      // For example, navigate to the home screen or show a success message
+      if (response['success'] == true) {
+        // Navigate to home screen or perform your success action
+        Get.offAllNamed('/home'); // Assuming you have a named route for the home screen
+      } else {
+        errorMessage.value = response['message'] ?? "OTP verification failed.";
+      }
+    } catch (e) {
+      errorMessage.value = "An error occurred: ${e.toString()}"; // Handle error
+    } finally {
+      isLoading.value = false; // Stop loading
+    }
+  }
   void startTimer() {
     _start = 30; // Reset timer to 30 seconds
     _canResend = false; // Disable resend button initially
@@ -65,6 +96,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
   // OTP verification logic
   void verifyOtp(String otpCode) {
+    _verifyOtp();
     setState(() {
       _isLoading = true; // Show loading indicator
     });
@@ -305,7 +337,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       if (_isLoading)
                         CircularProgressIndicator(), // Show loader
                       Text(
-                        '@Copyright SureCare-2024',
+                        'Copyright © 2024 - SureCare',
                         style: TextStyle(
                           fontSize: 12.0,
                           color: Colors.grey,

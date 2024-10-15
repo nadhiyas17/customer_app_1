@@ -12,9 +12,7 @@ class AddAddressScreen extends StatefulWidget {
 class _AddAddressScreenState extends State<AddAddressScreen> {
   String _address = "";
   bool _isUsingCurrentLocation = false;
-  List<String> _savedAddresses = [
-    
-  ];
+  List<String> _savedAddresses = [];
 
   @override
   void initState() {
@@ -22,13 +20,18 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     _getCurrentLocation();
   }
 
-  
-
   // Function to get the current location of the user
   Future<void> _getCurrentLocation() async {
     try {
+      LocationSettings locationSettings = LocationSettings(
+        accuracy: LocationAccuracy
+            .high, // You can use LocationAccuracy.low, medium, etc.
+        distanceFilter:
+            100, // Optional: distance in meters before location updates
+      );
+
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: locationSettings,
       );
       setState(() {
         _isUsingCurrentLocation = true;
@@ -42,7 +45,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   // Function to get the address from coordinates
   Future<void> _getAddress(double latitude, double longitude) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
         _address =
@@ -56,6 +60,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
   // Function to handle the "Use my current location" button press
   void _useCurrentLocation() {
+    Navigator.of(context).pushNamed(
+      '/currentloaction',
+    );
     setState(() {
       _isUsingCurrentLocation = true;
     });
@@ -98,40 +105,48 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
             TextField(
               decoration: InputDecoration(
                 hintText: 'Try for area, city...',
-                hintStyle: TextStyle(color: Colors.grey), // Light gray hint text
+                hintStyle:
+                    TextStyle(color: Colors.grey), // Light gray hint text
                 contentPadding: EdgeInsets.all(12.0), // Add content padding
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0), // Rounded border
-                  borderSide: BorderSide(color: Color(0xFFE0E0E0)), // Light gray border
+                  borderSide:
+                      BorderSide(color: Color(0xFFE0E0E0)), // Light gray border
                 ),
                 suffixIcon: Icon(Icons.search),
-                
-                
-                
               ),
-              
-              
               onChanged: (value) {
                 // Handle address search
               },
             ),
-           ListTile(
-  leading: Icon(Icons.my_location, color: Colors.red, ),
-  title: Text(
-    'Use my current location',
-    style: TextStyle(color: Colors.red), // Red text for "Use my current location"
-  ),
-  trailing: Icon(Icons.chevron_right,),
-  onTap: _useCurrentLocation,
-),
-ListTile(
-  leading: Icon(Icons.add, color: Colors.red, ),
-  title: Text(
-    'Add new address',
-    style: TextStyle(color: Colors.red), // Red text for "Add new address"
-  ),
-  onTap: _addNewAddress,
-),
+            ListTile(
+              leading: Icon(
+                Icons.my_location,
+                color: Colors.red,
+              ),
+              title: Text(
+                'Use my current location',
+                style: TextStyle(
+                    color:
+                        Colors.red), // Red text for "Use my current location"
+              ),
+              trailing: Icon(
+                Icons.chevron_right,
+              ),
+              onTap: _useCurrentLocation,
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.add,
+                color: Colors.red,
+              ),
+              title: Text(
+                'Add new address',
+                style: TextStyle(
+                    color: Colors.red), // Red text for "Add new address"
+              ),
+              onTap: _addNewAddress,
+            ),
             Divider(
               color: Color(0xFFE0E0E0), // Light gray divider
             ),
@@ -139,7 +154,7 @@ ListTile(
             //   'SAVED ADDRESSES',
             //   style: TextStyle(fontWeight: FontWeight.bold,
             //   color: Colors.grey),
-              
+
             //    // Bold text for saved addresses heading
             // ),
             ListView.builder(
