@@ -1,196 +1,106 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_google_maps_webservices/places.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-const kGoogleApiKey = 'AIzaSyDY_mNvqPbcGCRiwor1IVcJ5pyRmstm9XY'; // Replace with your API key
-final GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
-
-class CurrentLocationScreen extends StatefulWidget {
-  const CurrentLocationScreen({Key? key}) : super(key: key);
+// Main widget for displaying Google Map
+class GoogleMapFlutter extends StatefulWidget {
+  const GoogleMapFlutter({super.key});
 
   @override
-  State<CurrentLocationScreen> createState() => _CurrentLocationScreenState();
+  State<GoogleMapFlutter> createState() => _GoogleMapFlutterState();
 }
 
-class _CurrentLocationScreenState extends State<CurrentLocationScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  List<Prediction> _suggestions = [];
-  bool _isLoading = false;
+class _GoogleMapFlutterState extends State<GoogleMapFlutter> {
+  // Initial location for the map's camera position (latitude and longitude)
+  LatLng myCurrentLocation = const LatLng(27.7172, 85.3240);
+  // LatLng myCurrentLocation = const LatLng(28.578382, 81.63359);
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  // Function to fetch location predictions based on the search input
-  Future<void> _fetchSuggestions(String input) async {
-    if (input.isNotEmpty) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      try {
-        final response = await _places.autocomplete(input);
-        if (response.predictions != null) {
-          setState(() {
-            _suggestions = response.predictions!;
-          });
-        }
-      } catch (e) {
-        print("Error fetching suggestions: $e");
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    } else {
-      setState(() {
-        _suggestions = [];
-      });
-    }
-  }
-
-  // Function to handle search input changes
-  void _onSearchChanged(String value) {
-    _fetchSuggestions(value);
-  }
+  late GoogleMapController googleMapController;
+  Set<Marker> markers = {};
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue,
-        title: Text(
-          "Add Address",
-          style: TextStyle(color: Colors.white),
+      body: GoogleMap(
+        myLocationButtonEnabled: false,
+
+        markers: markers,
+        // Setting the controller when the map is created
+        onMapCreated: (GoogleMapController controller) {
+          googleMapController = controller;
+        },
+        // Initial camera position of the map
+        initialCameraPosition: CameraPosition(
+          target: myCurrentLocation,
+          zoom: 14,
         ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                fillColor: Colors.amber,
-                hintText: "Search for a location...",
-                border: OutlineInputBorder(),
-                
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.clear),
-                  onPressed: () {
-                    _searchController.clear();
-                    _suggestions.clear();
-                  },
-                ),
-              ),
-              onChanged: _onSearchChanged,
-            ),
-          ),
-          _isLoading
-              ? CircularProgressIndicator()
-              : Expanded(
-                  child: ListView.builder(
-                    itemCount: _suggestions.length,
-                    itemBuilder: (context, index) {
-                      final suggestion = _suggestions[index];
-                      return ListTile(
-                        title: Text(suggestion.description ?? ""),
-                        onTap: () {
-                          // Handle the location selection
-                          _searchController.text = suggestion.description ?? "";
-                          _suggestions.clear(); // Clear suggestions after selection
-                          // TODO: Handle location selection logic here
-                        },
-                      );
-                    },
-                  ),
-                ),
-          Padding(
-            padding: const EdgeInsets.all(0.0),
-            child: SizedBox(
-              width: 150.0,
-              child: ElevatedButton.icon(
-                onPressed: () {}, // Trigger search on button press
-                icon: Icon(Icons.my_location),
-                label: Text("Locate Me"),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.all(15.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    
-                  ),
-                ),
+      // Floating action button to get user's current location
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.white,
+        child: const Icon(
+          Icons.my_location,
+          size: 30,
+        ),
+        onPressed: () async {
+          // Getting the current position of the user
+          Position position = await currentPosition();
+
+          // Animating the camera to the user's current position
+          googleMapController.animateCamera(
+            CameraUpdate.newCameraPosition(
+              CameraPosition(
+                target: LatLng(position.latitude, position.longitude),
+                zoom: 14,
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Current Location:",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {}, // Change location logic here
-                      child: Text("Change"),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Text("Street: "),
-                Text("City: "),
-                Text("State: "),
-                Text("Pincode: "),
-                Text("Current Position: "),
-                SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Logic to confirm address
-                        },
-                        child: Text("Confirm Address"),
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15.0),
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.green,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+          );
+
+          // Clearing existing markers
+          markers.clear();
+          // Adding a new marker at the user's current position
+          markers.add(
+            Marker(
+              markerId: const MarkerId('currentLocation'),
+              position: LatLng(position.latitude, position.longitude),
             ),
-          ),
-        ],
+          );
+
+          // Refreshing the state to update the UI with new markers
+          setState(() {});
+        },
       ),
     );
   }
-}
 
-// Dummy Dashboard Screen to navigate after confirmation
-class DashboardScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Dashboard"),
-      ),
-      body: Center(
-        child: Text("Welcome to the Dashboard!"),
-      ),
-    );
+  // Function to determine the user's current position
+  Future<Position> currentPosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Checking if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled');
+    }
+
+    // Checking the location permission status
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      // Requesting permission if it is denied
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error("Location permission denied");
+      }
+    }
+
+    // Handling the case where permission is permanently denied
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error('Location permissions are permanently denied');
+    }
+
+    // Getting the current position of the user
+    Position position = await Geolocator.getCurrentPosition();
+    return position;
   }
 }

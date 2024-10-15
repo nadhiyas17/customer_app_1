@@ -21,7 +21,8 @@ class _CurrentLocationState extends State<CurrentLocation> {
   String _city = "";
   String _state = "";
   String _street = "";
-  String _pincode = ""; // Variable to store the pincode
+  String _pincode = "";
+  String _sublocality = ""; // Variable to store the pincode
   LatLng _currentPosition = LatLng(0, 0);
   late GoogleMapController _mapController;
   bool _isLoading = true; // Track loading state
@@ -72,11 +73,12 @@ class _CurrentLocationState extends State<CurrentLocation> {
         Placemark placemark = placemarks[0];
         setState(() {
           _address =
-              "${placemark.street}, ${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}";
+              "${placemark.street}, ${placemark.locality} - ${placemark.postalCode}, ${placemark.administrativeArea}, ${placemark.country}";
           _city = placemark.locality ?? "Unknown city";
           _state = placemark.administrativeArea ?? "Unknown state";
           _street = placemark.street ?? "Unknown street";
           _pincode = placemark.postalCode ?? "Unknown pincode";
+          _sublocality = placemark.subLocality ?? "Unknown state";
           _currentPosition = LatLng(position.latitude, position.longitude);
           _isLoading = false;
         });
@@ -174,28 +176,42 @@ class _CurrentLocationState extends State<CurrentLocation> {
                   children: [
                     Text(
                       "Current Location:",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     ElevatedButton(
                       onPressed: _getCurrentLocation,
-                      child: Text("Change"),
+                      child: Text(
+                        "Change".toUpperCase(),
+                        style: TextStyle(color: Colors.red, fontSize: 16),
+                      ),
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
-                Text("Street: $_street"),
-                Text("City: $_city"),
-                Text("State: $_state"),
-                Text("Pincode: $_pincode"),
-                Text("Current Position: $_currentPosition"),
+
+                Text(
+                  _sublocality,
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(_address),
+                // Text("Area: $_sublocality"),
+                // Text("City: $_city"),
+                // Text("State: $_state"),
+                // Text("Pincode: $_pincode"),
+                // Text("Current Position: $_currentPosition"),
                 SizedBox(height: 20),
                 Row(
                   children: [
                     Expanded(
                       child: ElevatedButton(
                         onPressed: _onConfirmAddress,
-                        child: Text("Confirm Address"),
+                        child: Text("Confirm Address".toUpperCase()),
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(vertical: 15.0),
                           foregroundColor:

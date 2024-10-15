@@ -21,6 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
 
+ //API
   final ApiService apiService = ApiService();
 
   String _gender = 'Male';
@@ -42,14 +43,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _submitForm() async {
-    // if (_formKey.currentState!.validate()) {
-    //   Navigator.of(context).pushNamed('/currentloaction');
-    // }
+   
     if (_formKey.currentState!.validate()) {
       context.loaderOverlay.show(); // Show loading overlay
 
       final RegisterModel user = RegisterModel(
-        // name: _nameController.text,
         emailId: _emailController.text,
         age: int.tryParse(_ageController.text),
         gender: _gender,

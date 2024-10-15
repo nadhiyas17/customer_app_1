@@ -8,15 +8,13 @@ class RegisterController extends GetxController {
   var errorMessage = ''.obs; // To track error messages
 
   // Method to update the register model
-  void updateRegisterModel(String fullName, int mobileNumber, String gender, String bloodGroup, int age, String emailId, String dob) {
+  void updateRegisterModel(String gender, String bloodGroup, int age, String emailId) {
     registerModel.update((model) {
-      model!.fullName = fullName;
-      model.mobileNumber = mobileNumber;
-      model.gender = gender;
+      model!.gender = gender;
       model.bloodGroup = bloodGroup;
       model.age = age;
       model.emailId = emailId;
-      model.dob = dob;
+     
     });
   }
 

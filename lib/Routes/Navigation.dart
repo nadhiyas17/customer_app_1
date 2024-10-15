@@ -13,8 +13,8 @@ import '../Screens/RegisterScreen.dart';
 var onGenerateRoute = (RouteSettings settings) {
   print('my routs: ${settings.name}');
   switch (settings.name) {
-    case "/":
-      return MaterialPageRoute(builder: (builder) => const SplashScreen());
+    // case "/":
+    //   return MaterialPageRoute(builder: (builder) => const SplashScreen());
 
     //  case "/":
     //     return MaterialPageRoute(builder: (builder) => const AddAddressScreen());
@@ -41,8 +41,11 @@ var onGenerateRoute = (RouteSettings settings) {
     case "/address":
       return MaterialPageRoute(builder: (builder) => AddAddressScreen());
 
-    case "/currentloaction":
-      return MaterialPageRoute(builder: (builder) => CurrentLocationScreen());
+    // case "/":
+    //   return MaterialPageRoute(builder: (builder) => GoogleMapFlutter());
+
+    case "/":
+      return MaterialPageRoute(builder: (builder) => CurrentLocation());
 
 // RegisterScreen
     default:
