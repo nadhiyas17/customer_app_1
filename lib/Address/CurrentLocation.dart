@@ -1,106 +1,231 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:latlong2/latlong.dart';
 
-// Main widget for displaying Google Map
-class GoogleMapFlutter extends StatefulWidget {
-  const GoogleMapFlutter({super.key});
-
+class LocationTracker extends StatefulWidget {
   @override
-  State<GoogleMapFlutter> createState() => _GoogleMapFlutterState();
+  _LocationTrackerState createState() => _LocationTrackerState();
 }
 
-class _GoogleMapFlutterState extends State<GoogleMapFlutter> {
-  // Initial location for the map's camera position (latitude and longitude)
-  LatLng myCurrentLocation = const LatLng(27.7172, 85.3240);
-  // LatLng myCurrentLocation = const LatLng(28.578382, 81.63359);
+class _LocationTrackerState extends State<LocationTracker> {
+  Position? _currentPosition;
+  String _locationDetails = "";
+  String _area = "";
+  MapController _mapController = MapController();
 
-  late GoogleMapController googleMapController;
-  Set<Marker> markers = {};
+  @override
+  void initState() {
+    super.initState();
+    // Automatically track location when the widget is initialized
+    _trackLocation();
+  }
+
+  Future<void> _fetchAddressDetails(double latitude, double longitude) async {
+    final url = Uri.parse(
+        'https://nominatim.openstreetmap.org/reverse?lat=$latitude&lon=$longitude&format=json');
+    final response = await http.get(url);
+
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final address = data['address'];
+      final city =
+          address['city'] ?? address['town'] ?? address['village'] ?? "N/A";
+      final state = address['state'] ?? "N/A";
+      final country = address['country'] ?? "N/A";
+      final postcode = address['postcode'] ?? "N/A";
+      final roadNumber = address['road'] ?? "N/A";
+      final area = address['suburb'] ?? "N/A";
+
+      setState(() {
+        _area = area;
+        _locationDetails = "$roadNumber, $city - $postcode, $state, $country ";
+      });
+    } else {
+      setState(() {
+        _locationDetails = 'Failed to fetch address details';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GoogleMap(
-        myLocationButtonEnabled: false,
-
-        markers: markers,
-        // Setting the controller when the map is created
-        onMapCreated: (GoogleMapController controller) {
-          googleMapController = controller;
-        },
-        // Initial camera position of the map
-        initialCameraPosition: CameraPosition(
-          target: myCurrentLocation,
-          zoom: 14,
-        ),
+      appBar: AppBar(
+        title: Text('Track Your Location'),
+        backgroundColor: const Color(0xFF6B3FA0),
+        foregroundColor: Colors.white,
       ),
-      // Floating action button to get user's current location
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.white,
-        child: const Icon(
-          Icons.my_location,
-          size: 30,
-        ),
-        onPressed: () async {
-          // Getting the current position of the user
-          Position position = await currentPosition();
-
-          // Animating the camera to the user's current position
-          googleMapController.animateCamera(
-            CameraUpdate.newCameraPosition(
-              CameraPosition(
-                target: LatLng(position.latitude, position.longitude),
+      body: Column(
+        children: [
+          Expanded(
+            child: FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                center: LatLng(0, 0),
                 zoom: 14,
               ),
+              children: [
+                TileLayer(
+                  urlTemplate:
+                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  subdomains: ['a', 'b', 'c'],
+                  maxZoom: 19,
+                ),
+                MarkerLayer(
+                  markers: _currentPosition != null
+                      ? [
+                          Marker(
+                            width: 80.0,
+                            height: 80.0,
+                            point: LatLng(_currentPosition!.latitude,
+                                _currentPosition!.longitude),
+                            builder: (ctx) => Icon(
+                              Icons.location_pin,
+                              color: Colors.red,
+                              size: 40,
+                            ),
+                          ),
+                        ]
+                      : [],
+                ),
+              ],
             ),
-          );
-
-          // Clearing existing markers
-          markers.clear();
-          // Adding a new marker at the user's current position
-          markers.add(
-            Marker(
-              markerId: const MarkerId('currentLocation'),
-              position: LatLng(position.latitude, position.longitude),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Current Location:",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text(
+                    "Change".toUpperCase(),
+                    style: TextStyle(color: Colors.red, fontSize: 16),
+                  ),
+                ),
+              ],
             ),
-          );
-
-          // Refreshing the state to update the UI with new markers
-          setState(() {});
-        },
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start, // Aligns content to the left
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on,
+                      color: Colors.red,
+                      size: 24.0,
+                    ),
+                    SizedBox(width: 8.0),
+                    Text(
+                      _area,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ), // Adds spacing between the two texts
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    _locationDetails, // Display location details
+                    style: TextStyle(fontSize: 16),
+                    textAlign: TextAlign.left, // Ensure left text alignment
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {},
+                  child: Text("Confirm Address".toUpperCase()),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 15.0),
+                    foregroundColor: Colors.white,
+                    backgroundColor: const Color(0xFF6B3FA0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  // Function to determine the user's current position
-  Future<Position> currentPosition() async {
+  Future<void> _trackLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Checking if location services are enabled
+    // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      return Future.error('Location services are disabled');
+      setState(() {
+        _locationDetails = 'Location services are disabled.';
+      });
+      return;
     }
 
-    // Checking the location permission status
+    // Check for location permissions
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
-      // Requesting permission if it is denied
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        return Future.error("Location permission denied");
+        setState(() {
+          _locationDetails = 'Location permissions are denied';
+        });
+        return;
       }
     }
 
-    // Handling the case where permission is permanently denied
     if (permission == LocationPermission.deniedForever) {
-      return Future.error('Location permissions are permanently denied');
+      setState(() {
+        _locationDetails =
+            'Location permissions are permanently denied, we cannot request permissions.';
+      });
+      return;
     }
 
-    // Getting the current position of the user
-    Position position = await Geolocator.getCurrentPosition();
-    return position;
+    // Get the current position
+    LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy
+          .high, // You can use LocationAccuracy.low, medium, etc.
+      distanceFilter:
+          100, // Optional: distance in meters before location updates
+    );
+
+    Position position = await Geolocator.getCurrentPosition(
+      locationSettings: locationSettings,
+    );
+
+    setState(() {
+      _currentPosition = position;
+      _mapController.move(LatLng(position.latitude, position.longitude), 13);
+    });
+
+    _fetchAddressDetails(position.latitude, position.longitude);
   }
 }

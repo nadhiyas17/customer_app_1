@@ -7,9 +7,9 @@ import '../APIs/RegisterAPI.dart';
 import '../Modals/RegisterModel.dart';
 
 class RegisterScreen extends StatefulWidget {
-  final String fullName;
+  final String fullName="prashanth"; //TODO: check this is static
 
-  RegisterScreen({required this.fullName});
+ 
 
   @override
   _RegisterScreenState createState() => _RegisterScreenState();

@@ -1,36 +1,45 @@
 import 'dart:convert';
+import 'package:cutomer_app/APIs/BaseUrl.dart';
 import 'package:http/http.dart' as http;
 
-import 'BaseUrl.dart';
+// import 'BaseUrl.dart';
 
 class LoginApiService {
   final String endpoint = 'sign-in-or-sign-up';
 
   Future<Map<String, dynamic>> signInOrSignUp(
       String fullname, String mobileNumber) async {
+    print("==============================================================");
     try {
+      print(
+          "============================================================== try");
       final response = await http.post(
-        Uri.parse('${baseUrl}/${endpoint}'),
+        Uri.parse('http://192.168.1.14:9090/api/customers/sign-in-or-sign-up'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'fullName': fullname,
           'mobileNumber': mobileNumber,
         }),
       );
-
+      print('===================================${response.body}');
       if (response.statusCode == 200) {
-        print("Suufully added");
-        // Success - Parse response body
+        print(
+            "============================================================== success");
+        print("Successfully added");
         return json.decode(response.body);
       } else {
-        // Failed - Handle API errors
+        print(
+            "============================================================== error");
+        print("Response body: ${response.body}"); // Log response body
         return {
           'error':
               'Failed to sign in or sign up. Status: ${response.statusCode}'
         };
       }
     } catch (e) {
-      // Exception - Handle connection or parsing errors
+      print(
+          "============================================================== catch");
+      print("Error details: $e"); // Log detailed error
       return {'error': 'An error occurred: $e'};
     }
   }

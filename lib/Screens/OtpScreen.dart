@@ -1,41 +1,34 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
-// ignore: depend_on_referenced_packages
 import 'package:pinput/pinput.dart';
+// import 'package:provider_app/screens/successscreen.dart';
+import 'package:http/http.dart' as http;
 
-import '../APIs/LoginAPI.dart';
-import '../verification/verficationmessage.dart';
+import '../APIs/BaseUrl.dart';
 
-// import '../../utils.dart/HelpScreen.dart';
-// import '../LoginScreen.dart';
-// import '../Dashboard/Dashboard.dart';
-// import '../Registration.dart';
-
-class OtpScreen extends StatefulWidget {
-  final String verificationId;
-  final String phoneNumber;
-  final String welcomeName;
-
-  OtpScreen({
-    required this.phoneNumber,
-    required this.verificationId,
-    required this.welcomeName,
+class Otpscreencustomer extends StatefulWidget {
+  final String? PhoneNumberstored;
+  const Otpscreencustomer({
+    super.key,
+    required this.PhoneNumberstored,
+    //required this.username,
   });
 
   @override
   _OtpScreenState createState() => _OtpScreenState();
 }
 
-class _OtpScreenState extends State<OtpScreen> {
+class _OtpScreenState extends State<Otpscreencustomer> {
   late Timer _timer;
-  int _start = 30;
+  int _start = 60;
   bool _canResend = false;
-  String _otpCode = ""; // Store the OTP code entered
+  String otpCode = ""; // Store the OTP code entered
   bool _isLoading = false; // To show loading indicator during verification
   int _failedAttempts = 0;
+  String? verificationId; // Add this field to store the verification ID
 
   @override
   void initState() {
@@ -43,40 +36,11 @@ class _OtpScreenState extends State<OtpScreen> {
     startTimer(); // Start the timer
   }
 
-   final TextEditingController _otpController = TextEditingController();
-  var isLoading = false.obs;
-  var errorMessage = ''.obs;
-  final LoginApiService _loginApiService = LoginApiService();
-
-  void _verifyOtp() async { // TODO:check once this function
-    if (_otpController.text.isEmpty) {
-      errorMessage.value = "Please enter the OTP.";
-      return;
-    }
-
-    isLoading.value = true; // Start loading
-
-    try {
-      final response = await _loginApiService.verifyOtp(widget.phoneNumber, _otpController.text.trim());
-      // Handle successful OTP verification
-      // For example, navigate to the home screen or show a success message
-      if (response['success'] == true) {
-        // Navigate to home screen or perform your success action
-        Get.offAllNamed('/home'); // Assuming you have a named route for the home screen
-      } else {
-        errorMessage.value = response['message'] ?? "OTP verification failed.";
-      }
-    } catch (e) {
-      errorMessage.value = "An error occurred: ${e.toString()}"; // Handle error
-    } finally {
-      isLoading.value = false; // Stop loading
-    }
-  }
   void startTimer() {
-    _start = 30; // Reset timer to 30 seconds
+    _start = 60; // Reset timer to 30 seconds
     _canResend = false; // Disable resend button initially
 
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (_start > 0) {
           _start--;
@@ -96,74 +60,131 @@ class _OtpScreenState extends State<OtpScreen> {
 
   // OTP verification logic
   void verifyOtp(String otpCode) {
-    _verifyOtp();
+    print("============================${otpCode}==========================");
+    print(
+        "============================${widget.PhoneNumberstored}==========================");
+
     setState(() {
       _isLoading = true; // Show loading indicator
     });
 
-    // Simulating async OTP verification
+    // Send mobile number and OTP to the backend for verification
+    Future.delayed(const Duration(seconds: 2), () async {
+      try {
+        if (widget.PhoneNumberstored != null) {
+          print("======== Try ========");
 
-    // Simulating async OTP verification
-    Future.delayed(Duration(seconds: 2), () async {
-      if (otpCode == "123456") {
-        // Success scenario
-        // Fluttertoast.showToast(
-        //   msg: 'OTP Verified Successfully!',
-        //   toastLength: Toast.LENGTH_SHORT,
-        //   gravity: ToastGravity.BOTTOM,
-        //   backgroundColor: Colors.green,
-        //   textColor: Colors.white,
-        //   fontSize: 16.0,
-        // );
+          // Replace this with your actual API endpoint
+          final response = await http.post(
+            Uri.parse('$baseUrl/verify-otp'),
+            body: json.encode({
+              'mobileNumber': widget.PhoneNumberstored,
+              'enteredOtp': otpCode,
+            }),
+            headers: {'Content-Type': 'application/json'},
+          );
 
-        // Show dialog before navigating
-        DialogHelper.showVerificationDialog(context);
+          // Check for successful response
+          if (response.statusCode == 200) {
+            print("======== Success ========");
+            final responseData = json.decode(response.body);
+            print("${responseData}");
 
-        // Wait for 3 seconds before navigating
-        setState(() {
-          _isLoading = false; // Show loading indicator
-          _timer.cancel();
-        });
-        await Future.delayed(Duration(seconds: 3));
-        // Navigate to the Dashboard on successful verification
-        Navigator.of(context).pushReplacementNamed(
-          '/registerScreen',
-          arguments: widget.welcomeName,
-        );
-      } else {
-        // Handle failed OTP verification
-        setState(() {
-          _failedAttempts++;
-          _isLoading = false; // Hide loading indicator
-        });
+            // Show success message
+            Fluttertoast.showToast(
+              msg: 'OTP verified successfully',
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              backgroundColor: const Color.fromARGB(255, 54, 244, 174),
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
 
-        Fluttertoast.showToast(
-          msg: 'Invalid OTP, please try again.',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+            // Hide loading indicator and navigate to registration screen
+            setState(() {
+              _isLoading = false;
+              _timer.cancel();
+            });
 
-        // If failed attempts reach 3, show the "Get Help" link
-        if (_failedAttempts >= 3) {
-          setState(() {
-            _canResend = false; // Disable resend button
-          });
+            Navigator.of(context).pushNamed('/registerScreen');
+            // Navigator.of(context).pushNamedAndRemoveUntil(
+            //   '/registerScreen',
+            //   (Route<dynamic> route) => false,
+            // );
+          } else {
+            // Handle other messages from the server
+            final responseData = json.decode(response.body);
+            if (responseData['message'] == 'OTP has expired') {
+              showErrorToast('OTP has expired. Please request a new OTP.');
+            } else if (responseData['message'] ==
+                'No OTP was found for this mobile number') {
+              showErrorToast(
+                  'No OTP found for this mobile number. Please request a new OTP.');
+            } else {
+              showErrorToast('Failed to verify OTP. Please try again later.');
+            }
+          }
         }
+      } catch (e) {
+        print("======== Catch ========");
+        print('Error verifying OTP: $e');
+        setState(() {
+          _isLoading = false;
+        });
       }
     });
   }
 
-  void resendOtp() {
-    // Logic to resend OTP
-    Fluttertoast.showToast(msg: 'OTP resent to ${widget.phoneNumber}');
-    setState(() {
-      _otpCode = ""; // Clear the OTP input field
-    });
+// Helper function to show error messages
+  void showErrorToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
 
-    startTimer(); // Restart the timer
+  Future<void> resendOtp() async {
+    try {
+      // Define the API URL
+      String apiUrl = '$baseUrl/resend-otp';
+
+      // Ensure the phone number is not null
+      final phoneNumber = widget.PhoneNumberstored ?? '';
+
+      // Make the POST request
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(<String, String>{
+          'mobileNumber': phoneNumber, // Send the phone number as a parameter
+        }),
+      );
+
+      // Check if the API call was successful
+      if (response.statusCode == 200) {
+        Fluttertoast.showToast(msg: 'OTP resent to $phoneNumber');
+
+        // Clear the OTP input field
+        setState(() {
+          otpCode = "";
+        });
+
+        // Restart the timer
+        startTimer();
+      } else {
+        // Show error message if the API call fails
+        Fluttertoast.showToast(msg: 'Failed to resend OTP. Please try again.');
+      }
+    } catch (e) {
+      // Handle any errors
+      Fluttertoast.showToast(msg: 'Error: $e');
+    }
   }
 
   @override
@@ -176,7 +197,7 @@ class _OtpScreenState extends State<OtpScreen> {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(30.0),
                     bottomRight: Radius.circular(30.0),
                   ),
@@ -192,39 +213,45 @@ class _OtpScreenState extends State<OtpScreen> {
                   right: 20,
                   child: Column(
                     children: [
-                      SizedBox(height: 180.0), // Space for the image
+                      const SizedBox(height: 180.0),
+
+                      // Space for the image
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Enter the Verification Code',
-                            style: TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
+                          const Expanded(
+                            child: Text(
+                              'Enter the Verification Code',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           TextButton(
                             onPressed: () {
                               Navigator.pop(context); // Navigate back
                             },
-                            child: Text(
+                            child: const Text(
                               'Edit Number',
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
-                                fontSize: 16.0,
+                                fontSize: 12.0,
                                 color: Colors.blue,
                               ),
                             ),
                           ),
                         ],
                       ),
+
+                      //   text messages with phone_number
                       Padding(
                         padding: const EdgeInsets.only(left: 0),
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            'A 6 digit code has been sent to ${widget.phoneNumber}',
-                            style: TextStyle(
+                            'A 6 digit code has been sent to ${widget.PhoneNumberstored}',
+                            style: const TextStyle(
                               fontSize: 14.0,
                               color: Colors.grey,
                             ),
@@ -232,16 +259,16 @@ class _OtpScreenState extends State<OtpScreen> {
                         ),
                       ),
 
-                      SizedBox(height: 20.0),
+                      const SizedBox(height: 20.0),
 
-                      // Pinput for OTP input
+                      // Pinput for OTP input  think 6 boxes
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Pinput(
                           length: 6,
                           onChanged: (value) {
                             setState(() {
-                              _otpCode = value;
+                              otpCode = value;
                             });
                           },
                           onCompleted: (pin) {
@@ -251,20 +278,21 @@ class _OtpScreenState extends State<OtpScreen> {
                           defaultPinTheme: PinTheme(
                             width: 50,
                             height: 50,
-                            textStyle: TextStyle(
+                            textStyle: const TextStyle(
                               fontSize: 20,
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black12),
+                              border: Border.all(color: Colors.black38),
+                              // Change border color to a darker shade
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           focusedPinTheme: PinTheme(
                             width: 50,
                             height: 50,
-                            textStyle: TextStyle(
+                            textStyle: const TextStyle(
                               fontSize: 20,
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -277,15 +305,17 @@ class _OtpScreenState extends State<OtpScreen> {
                         ),
                       ),
 
-                      SizedBox(height: 20.0),
+                      const SizedBox(height: 20.0),
                       Text(
                         '00:${_start.toString().padLeft(2, '0')}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 30.0,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 10.0),
+
+                      //this section includes 3 otp try error message UI
+                      const SizedBox(height: 10.0),
                       TextButton(
                         onPressed: _failedAttempts >= 3
                             ? () {
@@ -302,8 +332,8 @@ class _OtpScreenState extends State<OtpScreen> {
                             text: TextSpan(
                               children: [
                                 TextSpan(
-                                  text: _failedAttempts >= 3
-                                      ? "You have made '3' unsuccessful attempts. Need assistance? "
+                                  text: _failedAttempts >= 2
+                                      ? "You have made '2' unsuccessful attempts. Need assistance? "
                                       : "Didn't receive OTP? ",
                                   style: TextStyle(
                                     fontSize: 16.0,
@@ -315,7 +345,7 @@ class _OtpScreenState extends State<OtpScreen> {
                                 if (_failedAttempts >= 3)
                                   TextSpan(
                                     text: " Get Help",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 16.0,
                                       color: Colors.blue,
                                       fontWeight: FontWeight.bold,
@@ -333,11 +363,11 @@ class _OtpScreenState extends State<OtpScreen> {
                         ),
                       ),
 
-                      SizedBox(height: 20.0),
+                      const SizedBox(height: 20.0),
                       if (_isLoading)
-                        CircularProgressIndicator(), // Show loader
-                      Text(
-                        'Copyright © 2024 - SureCare',
+                        const CircularProgressIndicator(), // Show loader
+                      const Text(
+                        '@Copyright SureCare-2024',
                         style: TextStyle(
                           fontSize: 12.0,
                           color: Colors.grey,

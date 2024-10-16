@@ -22,7 +22,7 @@ class _CurrentLocationState extends State<CurrentLocation> {
   String _state = "";
   String _street = "";
   String _pincode = "";
-  String _sublocality = ""; // Variable to store the pincode
+  String _sublocality = ""; // Variable to store the sub-locality
   LatLng _currentPosition = LatLng(0, 0);
   late GoogleMapController _mapController;
   bool _isLoading = true; // Track loading state
@@ -78,12 +78,11 @@ class _CurrentLocationState extends State<CurrentLocation> {
           _state = placemark.administrativeArea ?? "Unknown state";
           _street = placemark.street ?? "Unknown street";
           _pincode = placemark.postalCode ?? "Unknown pincode";
-          _sublocality = placemark.subLocality ?? "Unknown state";
+          _sublocality = placemark.subLocality ?? "Unknown sub-locality";
           _currentPosition = LatLng(position.latitude, position.longitude);
           _isLoading = false;
         });
 
-        // Check if _mapController is initialized and the widget is still mounted
         if (_mapController != null && mounted) {
           _mapController.animateCamera(
             CameraUpdate.newLatLngZoom(_currentPosition, 16),
@@ -108,7 +107,6 @@ class _CurrentLocationState extends State<CurrentLocation> {
   }
 
   void _onConfirmAddress() {
-    // Store address and navigate to the dashboard
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -121,7 +119,7 @@ class _CurrentLocationState extends State<CurrentLocation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color(0xFF6B3FA0),
         title: Text(
           "Add Address",
           style: TextStyle(color: Colors.white),
@@ -133,15 +131,13 @@ class _CurrentLocationState extends State<CurrentLocation> {
           Padding(
             padding: const EdgeInsets.all(0.0),
             child: SizedBox(
-              width: double.infinity, // Ensure the button takes the full width
+              width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed:
-                    _getCurrentLocation, // Trigger search on button press
+                onPressed: _getCurrentLocation,
                 icon: Icon(Icons.my_location),
                 label: Text("Locate Me"),
                 style: ElevatedButton.styleFrom(
-                  alignment:
-                      Alignment.centerLeft, // Align the content to the left
+                  alignment: Alignment.centerLeft,
                   padding: EdgeInsets.all(15.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(0),
@@ -190,21 +186,25 @@ class _CurrentLocationState extends State<CurrentLocation> {
                     ),
                   ],
                 ),
-
-                Text(
-                  _sublocality,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on,
+                      color: Colors.red,
+                      size: 24.0,
+                    ),
+                    SizedBox(width: 8.0),
+                    Text(
+                      _sublocality,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
                 Text(_address),
-                // Text("Area: $_sublocality"),
-                // Text("City: $_city"),
-                // Text("State: $_state"),
-                // Text("Pincode: $_pincode"),
-                // Text("Current Position: $_currentPosition"),
                 SizedBox(height: 20),
                 Row(
                   children: [
@@ -214,13 +214,10 @@ class _CurrentLocationState extends State<CurrentLocation> {
                         child: Text("Confirm Address".toUpperCase()),
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(vertical: 15.0),
-                          foregroundColor:
-                              Colors.white, // Set text color to white
-                          backgroundColor:
-                              Colors.green, // Set background color to green
+                          foregroundColor: Colors.white,
+                          backgroundColor: const Color(0xFF6B3FA0),
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(10), // Rounded corners
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                       ),
@@ -236,7 +233,6 @@ class _CurrentLocationState extends State<CurrentLocation> {
   }
 }
 
-// Dummy Dashboard Screen to navigate after confirmation
 class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

@@ -2,7 +2,8 @@ import 'package:cutomer_app/APIs/LoginAPI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'OtpScreen.dart'; // Ensure this is the correct path to your OtpScreen
+import 'OtpScreen.dart';
+import 'OtpScreenVerify.dart'; // Ensure this is the correct path to your OtpScreen
 
 class Loginscreen extends StatefulWidget {
   @override
@@ -28,7 +29,7 @@ class _LoginscreenState extends State<Loginscreen> {
       isLoading.value = true; // Start loading
 
       // Format the phone number properly
-      phoneNumber = '+91${_mobileController.text.trim()}';
+      phoneNumber = '${_mobileController.text.trim()}';
 
       final fullname = _nameController.text.trim();
       final mobileNumber = _mobileController.text.trim();
@@ -44,12 +45,12 @@ class _LoginscreenState extends State<Loginscreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (ctx) => OtpScreen(
-              phoneNumber: phoneNumber!,
-              verificationId: "123456",
+            builder: (ctx) => Otpscreencustomer(
+              PhoneNumberstored: phoneNumber!,
+
               // verificationId: response[
               //     'verificationId'], // Use actual verification ID from response
-              welcomeName: fullname, // Use trimmed fullname
+              // Use trimmed fullname
             ),
           ),
         );
