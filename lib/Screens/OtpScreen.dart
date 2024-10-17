@@ -8,13 +8,17 @@ import 'package:pinput/pinput.dart';
 import 'package:http/http.dart' as http;
 
 import '../APIs/BaseUrl.dart';
+import '../verification/verficationmessage.dart';
+import '../Toasters/Toaster.dart';
 
 class Otpscreencustomer extends StatefulWidget {
   final String? PhoneNumberstored;
+
+  final dynamic username;
   const Otpscreencustomer({
     super.key,
     required this.PhoneNumberstored,
-    //required this.username,
+    required this.username,
   });
 
   @override
@@ -91,42 +95,56 @@ class _OtpScreenState extends State<Otpscreencustomer> {
             print("${responseData}");
 
             // Show success message
-            Fluttertoast.showToast(
+            showSuccessToast(
               msg: 'OTP verified successfully',
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              backgroundColor: const Color.fromARGB(255, 54, 244, 174),
-              textColor: Colors.white,
-              fontSize: 16.0,
             );
 
             // Hide loading indicator and navigate to registration screen
+            DialogHelper.showVerificationDialog(context);
+
+            // Wait for 3 seconds before navigating
             setState(() {
-              _isLoading = false;
+              _isLoading = false; // Show loading indicator
               _timer.cancel();
             });
+            await Future.delayed(Duration(seconds: 3));
 
-            Navigator.of(context).pushNamed('/registerScreen');
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              "/registerScreen",
+              (Route<dynamic> route) => false, // Removes all previous routes
+              arguments: [
+                widget.username,
+                widget.PhoneNumberstored
+              ], // Pass arguments
+            );
+
             // Navigator.of(context).pushNamedAndRemoveUntil(
             //   '/registerScreen',
             //   (Route<dynamic> route) => false,
             // );
           } else {
+            showErrorToast(msg:"Invaild OTP");
+            setState(() {
+              _isLoading = false;
+              _failedAttempts++;
+            });
+
             // Handle other messages from the server
             final responseData = json.decode(response.body);
-            if (responseData['message'] == 'OTP has expired') {
-              showErrorToast('OTP has expired. Please request a new OTP.');
-            } else if (responseData['message'] ==
-                'No OTP was found for this mobile number') {
-              showErrorToast(
-                  'No OTP found for this mobile number. Please request a new OTP.');
+
+            if (response.statusCode == 400) {
+              showErrorToast(msg:responseData['message'] ??
+                  "OTP has expired. Please request a new OTP.");
             } else {
-              showErrorToast('Failed to verify OTP. Please try again later.');
+              showErrorToast(msg:'Failed to verify OTP. Please try again later.');
             }
           }
         }
       } catch (e) {
         print("======== Catch ========");
+        showErrorToast(msg:"server not respond");
+//
         print('Error verifying OTP: $e');
         setState(() {
           _isLoading = false;
@@ -136,19 +154,10 @@ class _OtpScreenState extends State<Otpscreencustomer> {
   }
 
 // Helper function to show error messages
-  void showErrorToast(String message) {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
-  }
 
   Future<void> resendOtp() async {
     try {
+      _isLoading = true;
       // Define the API URL
       String apiUrl = '$baseUrl/resend-otp';
 
@@ -173,17 +182,23 @@ class _OtpScreenState extends State<Otpscreencustomer> {
         // Clear the OTP input field
         setState(() {
           otpCode = "";
+          _isLoading = false;
         });
-
         // Restart the timer
         startTimer();
       } else {
         // Show error message if the API call fails
         Fluttertoast.showToast(msg: 'Failed to resend OTP. Please try again.');
+        setState(() {
+          _isLoading = false;
+        });
       }
     } catch (e) {
       // Handle any errors
       Fluttertoast.showToast(msg: 'Error: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -317,7 +332,7 @@ class _OtpScreenState extends State<Otpscreencustomer> {
                       //this section includes 3 otp try error message UI
                       const SizedBox(height: 10.0),
                       TextButton(
-                        onPressed: _failedAttempts >= 3
+                        onPressed: _failedAttempts >= 2
                             ? () {
                                 // Navigate to Get Help screen when clicked
                                 Navigator.pushReplacementNamed(
@@ -337,16 +352,17 @@ class _OtpScreenState extends State<Otpscreencustomer> {
                                       : "Didn't receive OTP? ",
                                   style: TextStyle(
                                     fontSize: 16.0,
-                                    color: _canResend || _failedAttempts >= 3
+                                    color: _canResend || _failedAttempts >= 2
                                         ? const Color.fromARGB(255, 255, 0, 0)
                                         : Colors.grey,
                                   ),
                                 ),
-                                if (_failedAttempts >= 3)
+                                if (_failedAttempts >= 2)
                                   TextSpan(
                                     text: " Get Help",
                                     style: const TextStyle(
-                                      fontSize: 16.0,
+                                      height: 1.5,
+                                      fontSize: 20.0,
                                       color: Colors.blue,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -367,7 +383,7 @@ class _OtpScreenState extends State<Otpscreencustomer> {
                       if (_isLoading)
                         const CircularProgressIndicator(), // Show loader
                       const Text(
-                        '@Copyright SureCare-2024',
+                        'Copyright © 2024 - SureCare',
                         style: TextStyle(
                           fontSize: 12.0,
                           color: Colors.grey,

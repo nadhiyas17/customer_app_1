@@ -1,6 +1,5 @@
 import 'package:cutomer_app/APIs/AddressAPi.dart';
 import 'package:cutomer_app/Modals/AddressModal.dart';
-import 'package:cutomer_app/Toasters/Toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_maps_webservices/places.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,24 +9,25 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 
 import '../Dashboard/Dashboard.dart';
-import 'GoogleMapSearchPlacesApi.dart';
 
 const kGoogleApiKey =
     'AIzaSyDY_mNvqPbcGCRiwor1IVcJ5pyRmstm9XY'; // Replace with your API key
 final GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
-class CurrentLocationl extends StatefulWidget {
-  final String mobileNumber;
+class AddAddress extends StatefulWidget {
+
+   final String mobileNumber;
   // Constructor with required mobileNumber
-  const CurrentLocationl({super.key, required this.mobileNumber});
+   
+  AddAddress({super.key,required this.mobileNumber});
 
   @override
-  State<CurrentLocationl> createState() => _CurrentLocationlState();
+  State<AddAddress> createState() => _AddAddressState();
 }
 
-class _CurrentLocationlState extends State<CurrentLocationl> {
+class _AddAddressState extends State<AddAddress> {
   String address = "Fetching location...";
-  LatLng currentPosition = LatLng(0, 0);
+  LatLng _currentPosition = LatLng(0, 0);
   late GoogleMapController _mapController;
   Marker? _searchMarker;
   bool _isLoading = true;
@@ -38,14 +38,15 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
   String postalCode = '';
   String administrativeArea = '';
   String country = '';
+ 
 
   @override
   void initState() {
     super.initState();
-    _getCurrentLocationl();
+    _getAddAddress();
   }
 
-  Future<void> _getCurrentLocationl() async {
+  Future<void> _getAddAddress() async {
     try {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
@@ -87,14 +88,15 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
       setState(() {
         address =
             "${placemark.street}, ${placemark.locality} - ${placemark.postalCode}, ${placemark.administrativeArea}, ${placemark.country}";
-        currentPosition = LatLng(latitude, longitude);
 
-        street = "${placemark.street} ";
-        locality = "${placemark.locality} ";
-        postalCode = "${placemark.postalCode} ";
-        administrativeArea = "${placemark.administrativeArea} ";
-        country = "${placemark.country} ";
-        sublocality = "${placemark.subLocality} ";
+           street="${placemark.street}"; 
+           locality="${placemark.locality}"; 
+           postalCode="${placemark.postalCode}"; 
+           administrativeArea="${placemark.administrativeArea}"; 
+           country="${placemark.country}"; 
+           
+        _currentPosition = LatLng(latitude, longitude);
+        sublocality = "${placemark.subLocality}";
         _isLoading = false;
       });
     }
@@ -112,12 +114,12 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
 
   void _onCameraMove(CameraPosition position) {
     setState(() {
-      currentPosition = position.target;
+      _currentPosition = position.target;
     });
 
     _debounceTimer?.cancel();
     _debounceTimer = Timer(Duration(seconds: 2), () {
-      _updatePosition(currentPosition.latitude, currentPosition.longitude);
+      _updatePosition(_currentPosition.latitude, _currentPosition.longitude);
     });
   }
 
@@ -131,68 +133,30 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
   }
 
   void _onConfirmAddress() async {
-    print("[LOG - ${DateTime.now()}] Starting address confirmation process...");
-
-    try {
-      // Create an instance of AddressAPI
-      print("[LOG - ${DateTime.now()}] Initializing AddressAPI...");
-      final addressAPI = AddressAPI();
-
-      // Create AddressModel instance
-      AddressModel address = AddressModel( 
-        houseNo: "NA",
-        street: street,
-        city: sublocality,
-        state: administrativeArea,
-        postalCode: postalCode,
-        country: country,
-        apartment: 'NA',
-        direction: 'NA',
-        latitude: currentPosition.latitude,
-        longitude: currentPosition.longitude,
-        area: 'NA',
-        saveAs: 'NA',
-        receiverName: 'NA',
-        receiverMobileNumber: 'NA',
-      );
-
-      print("[LOG - ${DateTime.now()}] Address: ${address.toJson()}");
-      print("[LOG - ${DateTime.now()}] Mobile Number: ${widget.mobileNumber}");
-
-      // Call the instance method onConfirmAddress
-      print(
-          "[LOG - ${DateTime.now()}] Sending address confirmation request...");
-      final response =
-          await addressAPI.onConfirmAddress(address, widget.mobileNumber);
-
-      // Log the entire response for debugging
-      print("[LOG - ${DateTime.now()}] Response: $response");
-
-      // Check for success status codes (200 or 201)
-      if (response.statusCode == 200) {
-        showSuccessToast(msg: "Address sent successfully");
-        print("[LOG - ${DateTime.now()}] Address sent successfully.");
-
-        // Success - navigate to the dashboard screen
-        print(
-            "[LOG - ${DateTime.now()}] Navigating to dashboard with sublocality: $sublocality");
-        Navigator.pushNamed(context, "/dashborard", arguments: sublocality);
-      } else if (response.statusCode == 400) {
-        showErrorToast(msg: "Failed to send address");
-      } else {
-        // Log failure with status code
-        print(
-            "[LOG - ${DateTime.now()}] Failed to send address. Status code: ${response.statusCode}");
-        // Optionally show an error toast
-        // showErrorToast(msg: "Failed to send address");
-      }
-    } catch (e) {
-      // Log error with exception message
-      print("[LOG - ${DateTime.now()}] Error during address confirmation: $e");
-    }
-
-    print("[LOG - ${DateTime.now()}] Address confirmation process ended.");
+        Navigator.of(context).pushNamed('/sevedaddress');
   }
+// void _onConfirmAddress() async {
+//     try {
+//       // Create an instance of AddressAPI
+//       final addressAPI = AddressAPI();
+
+//       // Call the instance method onConfirmAddress
+//       final response = await addressAPI.onConfirmAddress(address, widget.mobileNumber);
+
+//       // Check for success status codes (200 or 201)
+//       if (response.statusCode == 201 || response.statusCode == 200) {
+//         Navigator.of(context).pushNamed('/sevedaddress');
+//         // Success - navigate to the dashboard screen
+
+//         print("Address sent successfully: ${response.body}");
+//       } else {
+//         print("Failed to send address. Status code: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       print("Error: $e");
+//     }
+//   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -212,8 +176,6 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
                 delegate:
                     AddressSearchDelegate(onSearchAddress: _onSearchAddress),
               );
-              GoogleMapSearchPlacesApi();
-
               if (result != null) {
                 _onSearchAddress(result);
               }
@@ -233,13 +195,13 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
                     GoogleMap(
                       onMapCreated: _onMapCreated,
                       initialCameraPosition: CameraPosition(
-                        target: currentPosition,
+                        target: _currentPosition,
                         zoom: 14.0,
                       ),
                       markers: {
                         Marker(
                           markerId: MarkerId("currentLocation"),
-                          position: currentPosition,
+                          position: _currentPosition,
                         ),
                       },
                       onCameraMove: _onCameraMove,
@@ -260,7 +222,7 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
                       top: null,
                       child: Center(
                         child: ElevatedButton.icon(
-                          onPressed: _getCurrentLocationl,
+                          onPressed: _getAddAddress,
                           icon: Icon(
                             Icons.my_location,
                             color: Colors.red,
@@ -356,7 +318,7 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
                         child: ElevatedButton(
                           onPressed: _onConfirmAddress,
                           child: Text(
-                            "Confirm Address".toUpperCase(),
+                            "Add Confirm Address".toUpperCase(),
                             style: TextStyle(fontSize: 18),
                           ),
                           style: ElevatedButton.styleFrom(

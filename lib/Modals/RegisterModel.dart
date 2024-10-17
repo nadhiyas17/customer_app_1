@@ -1,6 +1,6 @@
 class RegisterModel {
   String? fullName;
-  int? mobileNumber;
+  String? mobileNumber;
   String? gender;
   String? bloodGroup;
   int? age;
@@ -25,12 +25,12 @@ class RegisterModel {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['fullName'] = this.fullName;
-    data['mobileNumber'] = this.mobileNumber;
-    data['gender'] = this.gender;
-    data['bloodGroup'] = this.bloodGroup;
-    data['age'] = this.age;
-    data['emailId'] = this.emailId;
+    data['fullName'] =  fullName;
+    data['mobileNumber'] = mobileNumber;
+    data['gender'] =  gender;
+    data['bloodGroup'] =  bloodGroup;
+    data['age'] =  age;
+    data['emailId'] =  emailId;
     return data;
   }
 }

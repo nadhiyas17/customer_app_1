@@ -2,6 +2,7 @@ import 'package:cutomer_app/APIs/LoginAPI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import '../Toasters/Toaster.dart';
 import 'OtpScreen.dart';
 import 'OtpScreenVerify.dart'; // Ensure this is the correct path to your OtpScreen
 
@@ -39,36 +40,37 @@ class _LoginscreenState extends State<Loginscreen> {
         final response =
             await _loginapiService.signInOrSignUp(fullname, mobileNumber);
 
-        // Check if the response is successful or contains verification ID
-        // if (response != null && response['verificationId'] != null) {
-        // Navigate to OTP Screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (ctx) => Otpscreencustomer(
-              PhoneNumberstored: phoneNumber!,
+        // Check if the response is successful (assuming status 200 indicates success)
+        if (response != null && response['status'] == 200) {
+          // Show success toast
+          getOTPButton.value = "GET OTP";
 
-              // verificationId: response[
-              //     'verificationId'], // Use actual verification ID from response
-              // Use trimmed fullname
+          // Navigate to OTP Screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (ctx) => Otpscreencustomer(
+                PhoneNumberstored: phoneNumber!,
+                username: fullname,
+              ),
             ),
-          ),
-        );
-        // } else {
-        //   // Handle unsuccessful response
-        //   errorMessage.value =
-        //       "Failed to sign in or sign up. Please try again.";
-        // }
+          );
+        } else {
+          // Show error toast with the message from the response
+          showErrorToast(msg:response['message'] ??
+              'Failed to sign in or sign up. Please try again.');
+        }
       } catch (e) {
         // Handle the error (e.g., network issues, API errors)
-        errorMessage.value =
-            "An error occurred: ${e.toString()}"; // Display error message
+        showErrorToast(msg:"An error occurred: ${e.toString()}");
       } finally {
         // Reset loading state
         isLoading.value = false; // Hide loading state
       }
-    } else if (!agreeToTerms) {
-      errorMessage.value = "You must agree to the terms to proceed.";
+
+      if (!agreeToTerms) {
+        showErrorToast(msg:"You must agree to the terms to proceed.");
+      }
     }
   }
 

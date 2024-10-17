@@ -1,3 +1,4 @@
+import 'package:cutomer_app/Toasters/Toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -7,9 +8,13 @@ import '../APIs/RegisterAPI.dart';
 import '../Modals/RegisterModel.dart';
 
 class RegisterScreen extends StatefulWidget {
-  final String fullName="prashanth"; //TODO: check this is static
-
- 
+  final String fullName; //TODO: check this is static
+  final String mobileNumber;
+  RegisterScreen({
+    super.key,
+    required this.fullName,
+    required this.mobileNumber,
+  });
 
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
@@ -21,7 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
 
- //API
+  //API
   final ApiService apiService = ApiService();
 
   String _gender = 'Male';
@@ -43,13 +48,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _submitForm() async {
-   
     if (_formKey.currentState!.validate()) {
+      // Adding a delay before showing the loading overlay
+      await Future.delayed(Duration(seconds: 2));
       context.loaderOverlay.show(); // Show loading overlay
 
       final RegisterModel user = RegisterModel(
+        fullName: widget.fullName,
+        mobileNumber: widget.mobileNumber,
         emailId: _emailController.text,
-        age: int.tryParse(_ageController.text),
+        age: int.tryParse(_ageController.text) ?? 0, // Handle parsing error
         gender: _gender,
         bloodGroup: _bloodGroup,
       );
@@ -58,35 +66,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
         final response = await apiService.registerUser(user);
         context.loaderOverlay.hide(); // Hide loading overlay
 
-        Fluttertoast.showToast(
-          msg: response['message'] ?? "Basic Information Saved",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: const Color.fromARGB(255, 0, 70, 10),
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-
-        Navigator.of(context).pushNamed('/address');
+        if (response['status'] == 200) {
+          showSuccessToast(
+            msg: response['message'],
+          );
+          Navigator.of(context)
+              .pushNamed('/address', arguments: widget.mobileNumber);
+        } else {
+          // Handle cases where the server responds with an error status
+          showErrorToast(msg:
+              response['message'] ?? "Failed to register. Please try again.");
+        }
       } catch (e) {
         context.loaderOverlay.hide(); // Hide loading overlay on error
-        setState(() {
-          errorMessage = 'Failed to submit data. Error: $e';
-        });
-
-        Fluttertoast.showToast(
-          msg: errorMessage!,
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+        showErrorToast(msg:"Server did not respond. Please check your connection.");
+        print("Error: $e"); // Log the error for debugging
       }
     } else {
-      // setState(() {
-      //   errorMessage = "Please fill in all required fields.";
-      // });
+      // Optionally provide feedback for validation errors
+      showErrorToast(msg:"Please fill in all required fields correctly.");
     }
   }
 
@@ -105,7 +103,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 CircularProgressIndicator(),
                 const SizedBox(height: 20),
                 const Text(
-                  'Data Posting To DB',
+                  'Sending...',
                   style: TextStyle(
                     fontSize: 20,
                     color: Color.fromARGB(255, 227, 227, 227),

@@ -3,7 +3,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
 class AddAddressScreen extends StatefulWidget {
-  const AddAddressScreen({super.key});
+  final String mobileNumber;
+  // Constructor to accept the mobile number
+  const AddAddressScreen({super.key, required this.mobileNumber});
 
   @override
   _AddAddressScreenState createState() => _AddAddressScreenState();
@@ -62,6 +64,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   void _useCurrentLocation() {
     Navigator.of(context).pushNamed(
       '/currentloaction',
+      arguments: widget.mobileNumber,
     );
     setState(() {
       _isUsingCurrentLocation = true;
@@ -71,8 +74,15 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
   // Function to handle the "Add new address" button press
   void _addNewAddress() {
+    Navigator.pushNamed(
+      context,
+      "/addaddress",
+      arguments: widget.mobileNumber, // Passing the mobile number as argument
+    );
     // TODO: Implement logic to add a new address
     print("Add new address clicked");
+
+    // AddAddress
   }
 
   @override

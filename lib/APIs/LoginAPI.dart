@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:cutomer_app/APIs/BaseUrl.dart';
+
 import 'package:http/http.dart' as http;
+
+import '../Toasters/Toaster.dart';
 
 // import 'BaseUrl.dart';
 
@@ -14,7 +17,7 @@ class LoginApiService {
       print(
           "============================================================== try");
       final response = await http.post(
-        Uri.parse('http://192.168.1.14:9090/api/customers/sign-in-or-sign-up'),
+        Uri.parse('$baseUrl/$endpoint'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'fullName': fullname,
@@ -23,11 +26,15 @@ class LoginApiService {
       );
       print('===================================${response.body}');
       if (response.statusCode == 200) {
+        showSuccessToast(
+          msg: 'OTP Send successfully',
+        );
         print(
             "============================================================== success");
         print("Successfully added");
         return json.decode(response.body);
       } else {
+        showErrorToast(msg:"server not respond");
         print(
             "============================================================== error");
         print("Response body: ${response.body}"); // Log response body

@@ -1,4 +1,6 @@
 // ignore: file_names
+import 'package:cutomer_app/Address/AddAddress.dart';
+import 'package:cutomer_app/Dashboard/Dashboard.dart';
 import 'package:cutomer_app/Location/LocationScreen.dart';
 import 'package:cutomer_app/Screens/LoginScreen.dart';
 import 'package:cutomer_app/Screens/splashScreen.dart';
@@ -8,7 +10,9 @@ import 'package:flutter/material.dart';
 import '../Address/AddAddressScreen.dart';
 import '../Address/CurrentLocation.dart';
 import '../Address/CurrentLocationScreen.dart';
+import '../Address/SaveAddressScreen.dart';
 import '../Screens/RegisterScreen.dart';
+import '../Utils/HelpDesk.dart';
 
 var onGenerateRoute = (RouteSettings settings) {
   print('my routs: ${settings.name}');
@@ -16,8 +20,8 @@ var onGenerateRoute = (RouteSettings settings) {
     case "/":
       return MaterialPageRoute(builder: (builder) => const SplashScreen());
 
-    //  case "/":
-    //     return MaterialPageRoute(builder: (builder) => const AddAddressScreen());
+    // case "/":
+    //   return MaterialPageRoute(builder: (builder) => const CurrentLocationl());
 
     case "/location":
       return MaterialPageRoute(builder: (builder) => const LocationScreen());
@@ -30,20 +34,47 @@ var onGenerateRoute = (RouteSettings settings) {
 
 // termsandcondition
 
-    // case "/gethelp":
-    //   return MaterialPageRoute(builder: (builder) => GetHelp());
+    case "/gethelp":
+      return MaterialPageRoute(builder: (builder) => HelpDeskScreen());
 
     case "/registerScreen":
-      return MaterialPageRoute(builder: (_) => RegisterScreen());
+      final args = settings.arguments as List; // Expecting a List of arguments
+      final fullName = args[0] as String; // Extract username
+      final mobileNumber = args[1] as String; // Extract mobile number
+
+      return MaterialPageRoute(
+        builder: (_) => RegisterScreen(
+          fullName: fullName,
+          mobileNumber: mobileNumber, // Pass mobile number
+        ),
+      ); // Pass the fullName here
 
     case "/address":
-      return MaterialPageRoute(builder: (builder) => AddAddressScreen());
+      final mobileNumber = settings.arguments as String;
+      return MaterialPageRoute(
+        builder: (context) => AddAddressScreen(mobileNumber: mobileNumber),
+      );
 
-    // case "/":
-    //   return MaterialPageRoute(builder: (builder) => GoogleMapFlutter());
+    case "/addaddress":
+      final mobileNumber = settings.arguments as String;
+      return MaterialPageRoute(
+          builder: (builder) => AddAddress(mobileNumber: mobileNumber));
+
+    case "/sevedaddress":
+      return MaterialPageRoute(builder: (builder) => SaveAddressScreen());
 
     case "/currentloaction":
-      return MaterialPageRoute(builder: (builder) => LocationTracker());
+      final mobileNumber = settings.arguments as String;
+      return MaterialPageRoute(
+          builder: (builder) => CurrentLocationl(mobileNumber: mobileNumber));
+
+    case "/dashborard":
+      final sublocality =
+          settings.arguments as String; // Get the passed fullName
+      return MaterialPageRoute(
+        builder: (_) => DashboardScreen(
+            sublocality: sublocality), // Pass it to RegisterScreen
+      );
 
 // RegisterScreen
     default:
