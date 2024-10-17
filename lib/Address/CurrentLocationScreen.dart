@@ -139,7 +139,7 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
       final addressAPI = AddressAPI();
 
       // Create AddressModel instance
-      AddressModel address = AddressModel( 
+      AddressModel address = AddressModel(
         houseNo: "NA",
         street: street,
         city: sublocality,
@@ -153,7 +153,7 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
         area: 'NA',
         saveAs: 'NA',
         receiverName: 'NA',
-        receiverMobileNumber: 'NA',
+        receiverMobileNumber: 0,
       );
 
       print("[LOG - ${DateTime.now()}] Address: ${address.toJson()}");
@@ -176,7 +176,12 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
         // Success - navigate to the dashboard screen
         print(
             "[LOG - ${DateTime.now()}] Navigating to dashboard with sublocality: $sublocality");
-        Navigator.pushNamed(context, "/dashborard", arguments: sublocality);
+      Navigator.pushNamedAndRemoveUntil(
+  context,
+  "/dashboard", // This should match the registered route exactly
+  (Route<dynamic> route) => false, // Remove all previous routes
+  arguments: sublocality, // Pass the sublocality as an argument
+);
       } else if (response.statusCode == 400) {
         showErrorToast(msg: "Failed to send address");
       } else {

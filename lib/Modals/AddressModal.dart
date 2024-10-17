@@ -1,68 +1,74 @@
 class AddressModel {
-  String? houseNo;
-  String? street;
-  String? city;
-  String? state;
-  String? postalCode;
-  String? country;
-  String? apartment;
-  String? direction;
-  double? latitude;
-  double? longitude;
-  String? area;
-  String? saveAs;
-  String? receiverName;
-  String? receiverMobileNumber;
+  String houseNo;
+  String street;
+  String city;
+  String state;
+  String postalCode;
+  String country;
+  String apartment;
+  String direction;
+  double latitude;
+  double longitude;
+  String area;
+  String saveAs;
+  String receiverName;
+  int receiverMobileNumber;
 
-  AddressModel(
-      {this.houseNo,
-      this.street,
-      this.city,
-      this.state,
-      this.postalCode,
-      this.country,
-      this.apartment,
-      this.direction,
-      this.latitude,
-      this.longitude,
-      this.area,
-      this.saveAs,
-      this.receiverName,
-      this.receiverMobileNumber});
+  // Constructor
+  AddressModel({
+    required this.houseNo,
+    required this.street,
+    required this.city,
+    required this.state,
+    required this.postalCode,
+    required this.country,
+    required this.apartment,
+    required this.direction,
+    required this.latitude,
+    required this.longitude,
+    required this.area,
+    required this.saveAs,
+    required this.receiverName,
+    required this.receiverMobileNumber,
+  });
 
-  AddressModel.fromJson(Map<String, dynamic> json) {
-    houseNo = json['houseNo'];
-    street = json['street'];
-    city = json['city'];
-    state = json['state'];
-    postalCode = json['postalCode'];
-    country = json['country'];
-    apartment = json['apartment'];
-    direction = json['direction'];
-    latitude = json['latitude'];
-    longitude = json['longitude'];
-    area = json['area'];
-    saveAs = json['saveAs'];
-    receiverName = json['receiverName'];
-    receiverMobileNumber = json['receiverMobileNumber'];
+  // Factory method to create an instance from JSON
+  factory AddressModel.fromJson(Map<String, dynamic> json) {
+    return AddressModel(
+      houseNo: json['houseNo'],
+      street: json['street'],
+      city: json['city'],
+      state: json['state'],
+      postalCode: json['postalCode'],
+      country: json['country'],
+      apartment: json['apartment'],
+      direction: json['direction'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
+      area: json['area'],
+      saveAs: json['saveAs'],
+      receiverName: json['receiverName'],
+      receiverMobileNumber: json['receiverMobileNumber'],
+    );
   }
 
+  // Method to convert an instance to JSON
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['houseNo'] = houseNo;
-    data['street'] = street;
-    data['city'] = city;
-    data['state'] = state;
-    data['postalCode'] = postalCode;
-    data['country'] = country;
-    data['apartment'] = apartment;
-    data['direction'] = direction;
-    data['latitude'] = latitude;
-    data['longitude'] = longitude;
-    data['area'] = area;
-    data['saveAs'] = saveAs;
-    data['receiverName'] = receiverName;
-    data['receiverMobileNumber'] = receiverMobileNumber;
-    return data;
+    return {
+      'houseNo': houseNo,
+      'street': street,
+      'city': city,
+      'state': state,
+      'postalCode': postalCode,
+      'country': country,
+      'apartment': apartment,
+      'direction': direction,
+      'latitude': latitude,
+      'longitude': longitude,
+      'area': area,
+      'saveAs': saveAs,
+      'receiverName': receiverName,
+      'receiverMobileNumber': receiverMobileNumber,
+    };
   }
 }

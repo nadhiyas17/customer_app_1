@@ -57,19 +57,20 @@ class _LoginscreenState extends State<Loginscreen> {
           );
         } else {
           // Show error toast with the message from the response
-          showErrorToast(msg:response['message'] ??
-              'Failed to sign in or sign up. Please try again.');
+          showErrorToast(
+              msg: response['message'] ??
+                  'Failed to sign in or sign up. Please try again.');
         }
       } catch (e) {
         // Handle the error (e.g., network issues, API errors)
-        showErrorToast(msg:"An error occurred: ${e.toString()}");
+        showErrorToast(msg: "An error occurred: ${e.toString()}");
       } finally {
         // Reset loading state
         isLoading.value = false; // Hide loading state
       }
 
       if (!agreeToTerms) {
-        showErrorToast(msg:"You must agree to the terms to proceed.");
+        showErrorToast(msg: "You must agree to the terms to proceed.");
       }
     }
   }
@@ -196,23 +197,31 @@ class _LoginscreenState extends State<Loginscreen> {
                           // Submit Button
                           Center(
                             child: ElevatedButton(
-                                onPressed: _submitForm,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Color.fromARGB(255, 96, 15, 196),
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 15.0,
-                                    horizontal: 60.0,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30.0),
-                                  ),
+                              // Disable button when loading
+                              onPressed: isLoading.value
+                                  ? null
+                                  : () async {
+                                      isLoading.value = true; // Start loading
+                                       _submitForm(); // Perform your submit action
+                                      isLoading.value = false; // End loading
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Color.fromARGB(255, 96, 15, 196),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 15.0,
+                                  horizontal: 60.0,
                                 ),
-                                child: Obx(() => Text(
-                                      getOTPButton.value,
-                                      style: TextStyle(color: Colors.white),
-                                    ))),
-                          ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                              ),
+                              child: Obx(() => Text(
+                                    getOTPButton.value,
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                            ),
+                          )
                         ],
                       ),
                     ),

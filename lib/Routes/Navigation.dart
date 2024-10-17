@@ -68,13 +68,11 @@ var onGenerateRoute = (RouteSettings settings) {
       return MaterialPageRoute(
           builder: (builder) => CurrentLocationl(mobileNumber: mobileNumber));
 
-    case "/dashborard":
-      final sublocality =
-          settings.arguments as String; // Get the passed fullName
-      return MaterialPageRoute(
-        builder: (_) => DashboardScreen(
-            sublocality: sublocality), // Pass it to RegisterScreen
-      );
+    case "/dashboard":
+  final sublocality = settings.arguments as String; // Get the passed argument
+  return MaterialPageRoute(
+    builder: (_) => DashboardScreen(sublocality: sublocality), // Pass it to the screen
+  );
 
 // RegisterScreen
     default:
