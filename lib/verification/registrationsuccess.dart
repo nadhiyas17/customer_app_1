@@ -1,27 +1,13 @@
 import 'package:flutter/material.dart';
 
-class  registrationsuccess extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFDCE3E9), // Background color similar to your example
-      body: Center(
-        child: Container(
-          margin: EdgeInsets.all(16.0),
-          padding: EdgeInsets.all(24.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 3,
-                blurRadius: 5,
-                offset: Offset(0, 3), // Shadow positioning
-              ),
-            ],
-          ),
-          child: Column(
+class DialogHelper {
+  static Future<void> registraionMessage(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // Circular Icon with a checkmark
@@ -61,12 +47,8 @@ class  registrationsuccess extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
-
-void main() => runApp(MaterialApp(
-  home: registrationsuccess(),
-));

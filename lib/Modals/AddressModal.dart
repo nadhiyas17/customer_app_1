@@ -9,7 +9,7 @@ class AddressModel {
   String direction;
   double latitude;
   double longitude;
-  String area;
+
   String saveAs;
   String receiverName;
   int receiverMobileNumber;
@@ -26,7 +26,6 @@ class AddressModel {
     required this.direction,
     required this.latitude,
     required this.longitude,
-    required this.area,
     required this.saveAs,
     required this.receiverName,
     required this.receiverMobileNumber,
@@ -45,7 +44,6 @@ class AddressModel {
       direction: json['direction'],
       latitude: json['latitude'],
       longitude: json['longitude'],
-      area: json['area'],
       saveAs: json['saveAs'],
       receiverName: json['receiverName'],
       receiverMobileNumber: json['receiverMobileNumber'],
@@ -65,7 +63,6 @@ class AddressModel {
       'direction': direction,
       'latitude': latitude,
       'longitude': longitude,
-      'area': area,
       'saveAs': saveAs,
       'receiverName': receiverName,
       'receiverMobileNumber': receiverMobileNumber,

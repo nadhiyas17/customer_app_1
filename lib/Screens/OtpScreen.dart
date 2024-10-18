@@ -92,7 +92,7 @@ class _OtpScreenState extends State<Otpscreencustomer> {
           if (response.statusCode == 200) {
             print("======== Success ========");
             final responseData = json.decode(response.body);
-            print("${responseData}");
+            print("$responseData");
 
             // Show success message
             showSuccessToast(
@@ -109,22 +109,24 @@ class _OtpScreenState extends State<Otpscreencustomer> {
             });
             await Future.delayed(Duration(seconds: 3));
 
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              "/registerScreen",
-              (Route<dynamic> route) => false, // Removes all previous routes
-              arguments: [
-                widget.username,
-                widget.PhoneNumberstored
-              ], // Pass arguments
-            );
-
-            // Navigator.of(context).pushNamedAndRemoveUntil(
-            //   '/registerScreen',
-            //   (Route<dynamic> route) => false,
-            // );
+            // if (responseData['registrationCompleted'] == "false") {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                "/registerScreen",
+                (Route<dynamic> route) => false, // Removes all previous routes
+                arguments: [
+                  widget.username,
+                  widget.PhoneNumberstored,
+                ], // Pass arguments
+              );
+            // } else {
+            //   Navigator.of(context).pushNamedAndRemoveUntil(
+            //     '/dashboard',
+            //     (Route<dynamic> route) => false,
+            //   );
+            // }
           } else {
-            showErrorToast(msg:"Invaild OTP");
+            showErrorToast(msg: "Invalid OTP");
             setState(() {
               _isLoading = false;
               _failedAttempts++;
@@ -134,17 +136,20 @@ class _OtpScreenState extends State<Otpscreencustomer> {
             final responseData = json.decode(response.body);
 
             if (response.statusCode == 400) {
-              showErrorToast(msg:responseData['message'] ??
-                  "OTP has expired. Please request a new OTP.");
+              showErrorToast(
+                msg: responseData['message'] ??
+                    "OTP has expired. Please request a new OTP.",
+              );
             } else {
-              showErrorToast(msg:'Failed to verify OTP. Please try again later.');
+              showErrorToast(
+                msg: 'Failed to verify OTP. Please try again later.',
+              );
             }
           }
         }
       } catch (e) {
         print("======== Catch ========");
-        showErrorToast(msg:"server not respond");
-//
+        showErrorToast(msg: "Server not responding");
         print('Error verifying OTP: $e');
         setState(() {
           _isLoading = false;

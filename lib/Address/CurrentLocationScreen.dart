@@ -10,6 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 
 import '../Dashboard/Dashboard.dart';
+import '../verification/registrationsuccess.dart';
 import 'GoogleMapSearchPlacesApi.dart';
 
 const kGoogleApiKey =
@@ -150,7 +151,6 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
         direction: 'NA',
         latitude: currentPosition.latitude,
         longitude: currentPosition.longitude,
-        area: 'NA',
         saveAs: 'NA',
         receiverName: 'NA',
         receiverMobileNumber: 0,
@@ -176,12 +176,15 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
         // Success - navigate to the dashboard screen
         print(
             "[LOG - ${DateTime.now()}] Navigating to dashboard with sublocality: $sublocality");
-      Navigator.pushNamedAndRemoveUntil(
-  context,
-  "/dashboard", // This should match the registered route exactly
-  (Route<dynamic> route) => false, // Remove all previous routes
-  arguments: sublocality, // Pass the sublocality as an argument
-);
+        DialogHelper.registraionMessage(context);
+        await Future.delayed(Duration(seconds: 3));
+
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          "/dashboard", // This should match the registered route exactly
+          (Route<dynamic> route) => false, // Remove all previous routes
+          arguments: sublocality, // Pass the sublocality as an argument
+        );
       } else if (response.statusCode == 400) {
         showErrorToast(msg: "Failed to send address");
       } else {

@@ -60,8 +60,8 @@ var onGenerateRoute = (RouteSettings settings) {
       return MaterialPageRoute(
           builder: (builder) => AddAddress(mobileNumber: mobileNumber));
 
-    case "/sevedaddress":
-      return MaterialPageRoute(builder: (builder) => SaveAddressScreen());
+    // case "/sevedaddress":
+    //   return MaterialPageRoute(builder: (builder) => SaveAddressScreen());
 
     case "/currentloaction":
       final mobileNumber = settings.arguments as String;

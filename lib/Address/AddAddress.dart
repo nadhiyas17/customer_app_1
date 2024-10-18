@@ -1,5 +1,6 @@
 import 'package:cutomer_app/APIs/AddressAPi.dart';
 import 'package:cutomer_app/Modals/AddressModal.dart';
+import 'package:cutomer_app/Toasters/Toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_maps_webservices/places.dart';
 import 'package:geolocator/geolocator.dart';
@@ -9,25 +10,25 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 
 import '../Dashboard/Dashboard.dart';
+import 'GoogleMapSearchPlacesApi.dart';
+import 'SaveAddressScreen.dart';
 
 const kGoogleApiKey =
     'AIzaSyDY_mNvqPbcGCRiwor1IVcJ5pyRmstm9XY'; // Replace with your API key
 final GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
 class AddAddress extends StatefulWidget {
-
-   final String mobileNumber;
+  final String mobileNumber;
   // Constructor with required mobileNumber
-   
-  AddAddress({super.key,required this.mobileNumber});
+  const AddAddress({super.key, required this.mobileNumber});
 
   @override
-  State<AddAddress> createState() => _AddAddressState();
+  State<AddAddress> createState() => _CurrentLocationlState();
 }
 
-class _AddAddressState extends State<AddAddress> {
+class _CurrentLocationlState extends State<AddAddress> {
   String address = "Fetching location...";
-  LatLng _currentPosition = LatLng(0, 0);
+  LatLng currentPosition = LatLng(0, 0);
   late GoogleMapController _mapController;
   Marker? _searchMarker;
   bool _isLoading = true;
@@ -38,15 +39,14 @@ class _AddAddressState extends State<AddAddress> {
   String postalCode = '';
   String administrativeArea = '';
   String country = '';
- 
 
   @override
   void initState() {
     super.initState();
-    _getAddAddress();
+    _getCurrentLocationl();
   }
 
-  Future<void> _getAddAddress() async {
+  Future<void> _getCurrentLocationl() async {
     try {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
@@ -88,15 +88,14 @@ class _AddAddressState extends State<AddAddress> {
       setState(() {
         address =
             "${placemark.street}, ${placemark.locality} - ${placemark.postalCode}, ${placemark.administrativeArea}, ${placemark.country}";
+        currentPosition = LatLng(latitude, longitude);
 
-           street="${placemark.street}"; 
-           locality="${placemark.locality}"; 
-           postalCode="${placemark.postalCode}"; 
-           administrativeArea="${placemark.administrativeArea}"; 
-           country="${placemark.country}"; 
-           
-        _currentPosition = LatLng(latitude, longitude);
-        sublocality = "${placemark.subLocality}";
+        street = "${placemark.street} ";
+        locality = "${placemark.locality} ";
+        postalCode = "${placemark.postalCode} ";
+        administrativeArea = "${placemark.administrativeArea} ";
+        country = "${placemark.country} ";
+        sublocality = "${placemark.subLocality} ";
         _isLoading = false;
       });
     }
@@ -114,12 +113,12 @@ class _AddAddressState extends State<AddAddress> {
 
   void _onCameraMove(CameraPosition position) {
     setState(() {
-      _currentPosition = position.target;
+      currentPosition = position.target;
     });
 
     _debounceTimer?.cancel();
     _debounceTimer = Timer(Duration(seconds: 2), () {
-      _updatePosition(_currentPosition.latitude, _currentPosition.longitude);
+      _updatePosition(currentPosition.latitude, currentPosition.longitude);
     });
   }
 
@@ -133,30 +132,23 @@ class _AddAddressState extends State<AddAddress> {
   }
 
   void _onConfirmAddress() async {
-        Navigator.of(context).pushNamed('/sevedaddress');
+    // Call the instance method onConfirmAddress
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SaveAddressScreen(
+            street: street,
+            sublocality: sublocality,
+            administrativeArea: administrativeArea,
+            postalCode: postalCode,
+            country: country,
+            lat: currentPosition.latitude,
+            lng: currentPosition.longitude,
+            mobileNumber: widget.mobileNumber), // Pass all necessary arguments through the constructor
+      ),
+    );
   }
-// void _onConfirmAddress() async {
-//     try {
-//       // Create an instance of AddressAPI
-//       final addressAPI = AddressAPI();
-
-//       // Call the instance method onConfirmAddress
-//       final response = await addressAPI.onConfirmAddress(address, widget.mobileNumber);
-
-//       // Check for success status codes (200 or 201)
-//       if (response.statusCode == 201 || response.statusCode == 200) {
-//         Navigator.of(context).pushNamed('/sevedaddress');
-//         // Success - navigate to the dashboard screen
-
-//         print("Address sent successfully: ${response.body}");
-//       } else {
-//         print("Failed to send address. Status code: ${response.statusCode}");
-//       }
-//     } catch (e) {
-//       print("Error: $e");
-//     }
-//   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -176,6 +168,8 @@ class _AddAddressState extends State<AddAddress> {
                 delegate:
                     AddressSearchDelegate(onSearchAddress: _onSearchAddress),
               );
+              GoogleMapSearchPlacesApi();
+
               if (result != null) {
                 _onSearchAddress(result);
               }
@@ -195,13 +189,13 @@ class _AddAddressState extends State<AddAddress> {
                     GoogleMap(
                       onMapCreated: _onMapCreated,
                       initialCameraPosition: CameraPosition(
-                        target: _currentPosition,
+                        target: currentPosition,
                         zoom: 14.0,
                       ),
                       markers: {
                         Marker(
                           markerId: MarkerId("currentLocation"),
-                          position: _currentPosition,
+                          position: currentPosition,
                         ),
                       },
                       onCameraMove: _onCameraMove,
@@ -222,7 +216,7 @@ class _AddAddressState extends State<AddAddress> {
                       top: null,
                       child: Center(
                         child: ElevatedButton.icon(
-                          onPressed: _getAddAddress,
+                          onPressed: _getCurrentLocationl,
                           icon: Icon(
                             Icons.my_location,
                             color: Colors.red,
@@ -318,7 +312,7 @@ class _AddAddressState extends State<AddAddress> {
                         child: ElevatedButton(
                           onPressed: _onConfirmAddress,
                           child: Text(
-                            "Add Confirm Address".toUpperCase(),
+                            "Confirm Address".toUpperCase(),
                             style: TextStyle(fontSize: 18),
                           ),
                           style: ElevatedButton.styleFrom(
