@@ -74,17 +74,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
               .pushNamed('/address', arguments: widget.mobileNumber);
         } else {
           // Handle cases where the server responds with an error status
-          showErrorToast(msg:
-              response['message'] ?? "Failed to register. Please try again.");
+          showErrorToast(
+              msg: response['message'] ??
+                  "Failed to register. Please try again.");
         }
       } catch (e) {
         context.loaderOverlay.hide(); // Hide loading overlay on error
-        showErrorToast(msg:"Server did not respond. Please check your connection.");
+        showErrorToast(
+            msg: "Server did not respond. Please check your connection.");
         print("Error: $e"); // Log the error for debugging
       }
     } else {
       // Optionally provide feedback for validation errors
-      showErrorToast(msg:"Please fill in all required fields correctly.");
+      showErrorToast(msg: "Please fill in all required fields correctly.");
     }
   }
 
@@ -168,6 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     Row(
                                       children: [
                                         Expanded(
+                                          flex: 45,
                                           child: RadioListTile(
                                             title: Text('Male'),
                                             value: 'Male',
@@ -180,6 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           ),
                                         ),
                                         Expanded(
+                                          flex: 55,
                                           child: RadioListTile(
                                             title: Text('Female'),
                                             value: 'Female',

@@ -56,12 +56,14 @@ class _LoginscreenState extends State<Loginscreen> {
             ),
           );
         } else {
+          getOTPButton.value = "GET OTP";
           // Show error toast with the message from the response
           showErrorToast(
               msg: response['message'] ??
                   'Failed to sign in or sign up. Please try again.');
         }
       } catch (e) {
+        getOTPButton.value = "GET OTP";
         // Handle the error (e.g., network issues, API errors)
         showErrorToast(msg: "An error occurred: ${e.toString()}");
       } finally {

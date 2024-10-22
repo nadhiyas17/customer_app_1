@@ -145,7 +145,8 @@ class _CurrentLocationlState extends State<AddAddress> {
             country: country,
             lat: currentPosition.latitude,
             lng: currentPosition.longitude,
-            mobileNumber: widget.mobileNumber), // Pass all necessary arguments through the constructor
+            mobileNumber: widget
+                .mobileNumber), // Pass all necessary arguments through the constructor
       ),
     );
   }
@@ -272,23 +273,25 @@ class _CurrentLocationlState extends State<AddAddress> {
                           ),
                         ],
                       ),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.location_on,
-                            color: Colors.red,
-                            size: 24.0,
-                          ),
-                          Text(
-                            sublocality,
-                            style: TextStyle(
-                              fontSize: 16,
+                      SingleChildScrollView(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
                               color: Colors.red,
-                              fontWeight: FontWeight.bold,
+                              size: 24.0,
                             ),
-                          ),
-                          SizedBox(width: 8.0),
-                        ],
+                            Text(
+                              sublocality,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 8.0),
+                          ],
+                        ),
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
