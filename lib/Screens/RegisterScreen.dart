@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import '../APIs/RegisterAPI.dart';
+import '../Loading/FullScreeenLoader.dart';
 import '../Modals/RegisterModel.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -51,7 +52,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       // Adding a delay before showing the loading overlay
-      await Future.delayed(Duration(seconds: 2));
+      // await Future.delayed(Duration(seconds: 2));
       context.loaderOverlay.show(); // Show loading overlay
 
       final RegisterModel user = RegisterModel(
@@ -66,9 +67,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       try {
         final response = await apiService.registerUser(user);
 
-        context.loaderOverlay.hide(); // Hide loading overlay
-
         if (response['status'] == 200) {
+          context.loaderOverlay.hide(); // Hide loading overlay
           showSuccessToast(
             msg: response['message'],
           );
@@ -95,53 +95,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: LoaderOverlay(
-        overlayColor: const Color.fromARGB(221, 46, 46, 46),
-        overlayWidgetBuilder: (_) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SpinKitDoubleBounce(
-                        itemBuilder: (context, index) => Image.asset(
-                          'assets/white_logo.png', // Updated to load local image
-                          fit: BoxFit.cover,
-                        ),
-                        size: 70,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(height: 20),
-                          Text(
-                            "Loading ",
-                            style: TextStyle(
-                                fontSize: 24,
-                                color: Colors.white), // Customize text style
-                          ),
-                          // Space between text and second loader
-                          SpinKitThreeBounce(
-                            color: Colors
-                                .green, // Customize the color for the second loader
-                            size: 10.0, // Adjust size if necessary
-                          ),
-                        ],
-                      ), // Space between first loader and text
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+        overlayColor: Color.fromARGB(149, 36, 35, 35),
+        useDefaultLoading: false, // Disable default loader
+
+        overlayWidgetBuilder: (context) => FullscreenLoader(
+          message: "Loading",
+        ),
+
         child: Stack(
           children: [
             Positioned(

@@ -3,7 +3,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart'; // Import this for geocoding functionality
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:google_maps_flutter/google_maps_flutter.dart'; // For Google Maps
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../Loading/FullScreeenLoader.dart'; // For Google Maps
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
@@ -164,7 +166,7 @@ class _LocationScreenState extends State<LocationScreen> {
     return Scaffold(
       body: Center(
         child: isLoading
-            ? const CircularProgressIndicator()
+            ? FullscreenLoader(message: "Fetching Address")
             : Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Column(

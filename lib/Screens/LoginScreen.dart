@@ -130,7 +130,6 @@ class _LoginscreenState extends State<Loginscreen> {
                             ),
                             autovalidateMode: AutovalidateMode.onUnfocus,
                             validator: (value) {
-                              value = value?.trim();
                               if (value == null || value.isEmpty) {
                                 return "Enter a valid username";
                               } else if (!GetUtils.isUsername(value)) {

@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../APIs/AddressAPi.dart';
 import '../Modals/AddressModal.dart';
 import '../Toasters/Toaster.dart';
 import '../verification/registrationsuccess.dart';
 // import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:contacts_service/contacts_service.dart' as contacts_service;
+
+import 'package:flutter_contacts/contact.dart';
 
 class SaveAddressScreen extends StatefulWidget {
   final String? sublocality;
@@ -37,7 +44,8 @@ class SaveAddressScreen extends StatefulWidget {
 
 class _SaveAddressScreenState extends State<SaveAddressScreen> {
   // Form key to validate the form fields
-  final _formKey = GlobalKey<FormState>();
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // Text controllers for user input
   final houseController = TextEditingController();
@@ -64,87 +72,84 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
 
   // Function to handle saving the address details
   void _saveAddressDetails() async {
+    print("Opening phone book...");
     print("[LOG - ${DateTime.now()}] Starting address confirmation process...");
 
     // Validate form fields
-    if (_formKey.currentState!.validate()) {
-      try {
-        // Create an instance of AddressAPI
-        print("[LOG - ${DateTime.now()}] Initializing AddressAPI...");
-        final addressAPI = AddressAPI();
 
-        // Create AddressModel instance
-        AddressModel address = AddressModel(
-          houseNo: houseController.text,
-          street: widget.street ?? 'N/A',
-          city: widget.sublocality ?? 'N/A',
-          state: widget.administrativeArea ?? 'N/A',
-          postalCode: widget.postalCode ?? 'N/A',
-          country: widget.country ?? 'N/A',
-          apartment: apartmentController.text.isNotEmpty
-              ? apartmentController.text
-              : "NA",
-          direction: directionController.text.isNotEmpty
-              ? directionController.text
-              : "NA",
-          latitude: widget.lat ?? 0,
-          longitude: widget.lng ?? 0,
-          saveAs: selectedCategory ?? "NA",
-          receiverName: receiverNameController.text.isNotEmpty
-              ? receiverNameController.text
-              : "NA",
-          receiverMobileNumber: int.tryParse(phoneNumberController.text) ?? 0,
+    try {
+      // Create an instance of AddressAPI
+      print("[LOG - ${DateTime.now()}] Initializing AddressAPI...");
+      final addressAPI = AddressAPI();
+
+      // Create AddressModel instance
+      AddressModel address = AddressModel(
+        houseNo: houseController.text,
+        street: widget.street ?? 'N/A',
+        city: widget.sublocality ?? 'N/A',
+        state: widget.administrativeArea ?? 'N/A',
+        postalCode: widget.postalCode ?? 'N/A',
+        country: widget.country ?? 'N/A',
+        apartment: apartmentController.text.isNotEmpty
+            ? apartmentController.text
+            : "NA",
+        direction: directionController.text.isNotEmpty
+            ? directionController.text
+            : "NA",
+        latitude: widget.lat ?? 0,
+        longitude: widget.lng ?? 0,
+        saveAs: selectedCategory ?? "NA",
+        receiverName: receiverNameController.text.isNotEmpty
+            ? receiverNameController.text
+            : "NA",
+        receiverMobileNumber: int.tryParse(phoneNumberController.text) ?? 0,
+      );
+
+      print("[LOG - ${DateTime.now()}] Address: ${address.toJson()}");
+      print("[LOG - ${DateTime.now()}] Mobile Number: ${widget.mobileNumber}");
+
+      // Call the instance method onConfirmAddress
+      print(
+          "[LOG - ${DateTime.now()}] Sending address confirmation request...");
+      final response =
+          await addressAPI.onConfirmAddress(address, widget.mobileNumber);
+
+      // Log the entire response for debugging
+      print("[LOG - ${DateTime.now()}] Response: $response");
+
+      // Check for success status codes (200 or 201)
+      if (response.statusCode == 200) {
+        showSuccessToast(msg: "Address details saved successfully!");
+        print("[LOG - ${DateTime.now()}] Address sent successfully.");
+
+        // Success - navigate to the dashboard screen
+        print(
+            "[LOG - ${DateTime.now()}] Navigating to dashboard with sublocality: ${widget.sublocality}");
+
+        VerificationMessage.registraionMessage(context);
+
+        await Future.delayed(Duration(seconds: 3));
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          "/dashboard", // This should match the registered route exactly
+          (Route<dynamic> route) => false, // Remove all previous routes
+          arguments: widget.sublocality, // Pass the sublocality as an argument
         );
-
-        print("[LOG - ${DateTime.now()}] Address: ${address.toJson()}");
+      } else if (response.statusCode == 400) {
+        showErrorToast(msg: "Failed to send address");
+      } else {
+        // Log failure with status code
+        showErrorToast(msg: "Failed to send address. Status code");
         print(
-            "[LOG - ${DateTime.now()}] Mobile Number: ${widget.mobileNumber}");
-
-        // Call the instance method onConfirmAddress
-        print(
-            "[LOG - ${DateTime.now()}] Sending address confirmation request...");
-        final response =
-            await addressAPI.onConfirmAddress(address, widget.mobileNumber);
-
-        // Log the entire response for debugging
-        print("[LOG - ${DateTime.now()}] Response: $response");
-
-        // Check for success status codes (200 or 201)
-        if (response.statusCode == 200) {
-          showSuccessToast(msg: "Address sent successfully");
-          print("[LOG - ${DateTime.now()}] Address sent successfully.");
-
-          // Success - navigate to the dashboard screen
-          print(
-              "[LOG - ${DateTime.now()}] Navigating to dashboard with sublocality: ${widget.sublocality}");
-
-          VerificationMessage.registraionMessage(context);
-
-          await Future.delayed(Duration(seconds: 3));
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            "/dashboard", // This should match the registered route exactly
-            (Route<dynamic> route) => false, // Remove all previous routes
-            arguments:
-                widget.sublocality, // Pass the sublocality as an argument
-          );
-        } else if (response.statusCode == 400) {
-          showErrorToast(msg: "Failed to send address");
-        } else {
-          // Log failure with status code
-          showErrorToast(msg: "Failed to send address. Status code");
-          print(
-              "[LOG - ${DateTime.now()}] Failed to send address. Status code: ${response.statusCode}");
-        }
-      } catch (e) {
-        // Log error with exception message
-        showErrorToast(msg: "Error during address confirmation");
-        print(
-            "[LOG - ${DateTime.now()}] Error during address confirmation: $e");
+            "[LOG - ${DateTime.now()}] Failed to send address. Status code: ${response.statusCode}");
       }
-
-      print("[LOG - ${DateTime.now()}] Address confirmation process ended.");
+    } catch (e) {
+      // Log error with exception message
+      showErrorToast(msg: "Error during address confirmation");
+      print("[LOG - ${DateTime.now()}] Error during address confirmation: $e");
     }
+
+    print("[LOG - ${DateTime.now()}] Address confirmation process ended.");
 
     // Simulate saving the address by adding it to the list
     final address = {
@@ -168,8 +173,6 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
     //   _savedAddresses.add(address);
     // });
 
-    showSuccessToast(msg: "Address details saved successfully!");
-
     // Clear the form after saving
     _formKey.currentState!.reset();
     receiverNameController.clear();
@@ -177,21 +180,84 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
     selectedCategory = null;
   }
 
-  // Improved validation for all fields
-  String? _validateField(String? value,
-      {bool isRequired = false, String? fieldName}) {
-    if (isRequired && (value == null || value.isEmpty)) {
-      return '$fieldName is required.';
+  Future<void> _openPhoneBook() async {
+    print("Attempting to open phone book...");
+
+    PermissionStatus permission = await Permission.contacts.status;
+    print('Initial permission status: $permission');
+
+    if (permission.isDenied) {
+      permission = await Permission.contacts.request();
+      print('Requested permission status: $permission');
     }
-    if (fieldName == 'Receiver\'s Phone Number' &&
-        value != null &&
-        value.isNotEmpty) {
-      final RegExp phoneRegExp = RegExp(r'^\+?[0-9]{10,15}$');
-      if (!phoneRegExp.hasMatch(value)) {
-        return '$fieldName is invalid.';
+
+    if (permission.isGranted) {
+      try {
+        Iterable<contacts_service.Contact> contacts =
+            await contacts_service.ContactsService.getContacts();
+        print('Fetched contacts: ${contacts.length} found.');
+
+        if (contacts.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('No contacts found.')),
+          );
+          return;
+        }
+
+        contacts_service.Contact? selectedContact =
+            await showDialog<contacts_service.Contact>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Select a contact'),
+              content: Container(
+                width: double.maxFinite,
+                height: 400.0,
+                child: ListView.builder(
+                  itemCount: contacts.length,
+                  itemBuilder: (context, index) {
+                    contacts_service.Contact contact =
+                        contacts.elementAt(index);
+                    return ListTile(
+                      title: Text(contact.displayName ?? ''),
+                      onTap: () {
+                        Navigator.of(context).pop(contact);
+                      },
+                    );
+                  },
+                ),
+              ),
+            );
+          },
+        );
+
+        if (selectedContact != null && selectedContact.phones!.isNotEmpty) {
+          setState(() {
+            phoneNumberController.text =
+                selectedContact.phones!.first.value ?? '';
+          });
+        }
+      } catch (e) {
+        print('Error fetching contacts: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to fetch contacts: $e')),
+        );
       }
+    } else if (permission.isPermanentlyDenied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              'Permission to access contacts is permanently denied. Please enable it in settings.'),
+        ),
+      );
+      openAppSettings();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Permission to access contacts was denied.'),
+        ),
+      );
     }
-    return null;
   }
 
   @override
@@ -248,10 +314,19 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
                     controller: houseController,
+                    autovalidateMode: AutovalidateMode.onUnfocus,
                     decoration: const InputDecoration(
                         labelText: 'HOUSE / FLAT / FLOOR NO.'),
-                    validator: (value) => _validateField(value,
-                        isRequired: true, fieldName: 'House/Flat/Floor No.'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Enter a valid HOUSE / FLAT / FLOOR NO.";
+                      }
+                      // else if (!GetUtils.isUsername(value)) {
+                      //   // Adjust validation condition if needed
+                      //   return "Invalid input for HOUSE / FLAT / FLOOR NO.";
+                      // }
+                      return null; // No error
+                    },
                   ),
                 ),
 
@@ -262,8 +337,6 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                     controller: apartmentController,
                     decoration: const InputDecoration(
                         labelText: 'APARTMENT / ROAD / AREA (OPTIONAL)'),
-                    validator: (value) =>
-                        _validateField(value, fieldName: 'Apartment/Road/Area'),
                   ),
                 ),
 
@@ -274,8 +347,6 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                     controller: directionController,
                     decoration: const InputDecoration(
                         labelText: 'DIRECTION TO REACH (OPTIONAL)'),
-                    validator: (value) =>
-                        _validateField(value, fieldName: 'Direction to Reach'),
                   ),
                 ),
 
@@ -289,7 +360,10 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          selectedCategory = 'Friends & Family';
+                          selectedCategory =
+                              selectedCategory == 'Friends & Family'
+                                  ? null
+                                  : 'Friends & Family'; // Toggle the button
                         });
                       },
                       style: ElevatedButton.styleFrom(
@@ -303,7 +377,9 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          selectedCategory = 'Others';
+                          selectedCategory = selectedCategory == 'Others'
+                              ? null
+                              : 'Others'; // Toggle the button
                         });
                       },
                       style: ElevatedButton.styleFrom(
@@ -318,49 +394,108 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                 ),
 
                 // Conditionally show input fields based on selected category
-                if (selectedCategory != null) ...[
+                if (selectedCategory == 'Friends & Family') ...[
                   // Name field (required)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
                       controller: receiverNameController,
-                      decoration:
-                          const InputDecoration(labelText: 'Receiver\'s name'),
-                      validator: (value) => _validateField(value,
-                          isRequired: true, fieldName: 'Receiver\'s Name'),
+                      decoration: const InputDecoration(
+                        labelText: 'Receiver\'s Name',
+                        border: OutlineInputBorder(),
+                      ),
+                      autovalidateMode: AutovalidateMode.onUnfocus,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Enter a valid Receiver\'s Name";
+                        } else if (!GetUtils.isUsername(value)) {
+                          return "Enter a valid Receiver\'s Name";
+                        }
+                        return null; // No error
+                      },
                     ),
                   ),
 
-                  // Phone Number field (conditionally shown for Friends & Family, required)
-                  if (selectedCategory == 'Friends & Family') ...[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                        controller: phoneNumberController,
-                        decoration: const InputDecoration(
-                            labelText: 'Receiver\'s Phone Number'),
-                        keyboardType: TextInputType.phone,
-                        validator: (value) => _validateField(value,
-                            isRequired: true,
-                            fieldName: 'Receiver\'s Phone Number'),
+                  // Phone Number field (required for Friends & Family)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      controller: phoneNumberController,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                      decoration: InputDecoration(
+                        labelText: 'Receiver\'s Phone Number',
+                        border: OutlineInputBorder(),
+                        // Phone icon
+
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.contacts), // Phonebook icon
+                          onPressed: () {}, // Open phonebook on click
+                        ), // Phone icon
                       ),
+                      keyboardType: TextInputType.phone,
                     ),
-                  ],
+                  ),
                 ],
 
-                const SizedBox(height: 50.0),
+                if (selectedCategory == 'Others') ...[
+                  // Optionally, you could add additional fields or a message here for "Others"
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      controller: receiverNameController,
+                      autovalidateMode: AutovalidateMode.onUnfocus,
+                      decoration: const InputDecoration(
+                        labelText: 'Save as',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Enter a valid Name";
+                        } else if (!GetUtils.isUsername(value)) {
+                          return "Enter a valid Name";
+                        }
+                        return null; // No error
+                      },
+                    ),
+                  ),
+
+                  // Phone Number field (required for Friends & Family)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      controller: phoneNumberController,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                      decoration: InputDecoration(
+                        labelText: 'Receiver\'s Phone Number',
+                        border: OutlineInputBorder(),
+                        // Phone icon
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.contacts), // Phonebook icon
+                          onPressed: _openPhoneBook, // Open phonebook on click
+                        ), // Phone icon
+                      ),
+                      keyboardType: TextInputType.phone,
+                    ),
+                  ),
+                ],
+
+                // const SizedBox(height: 50.0),
 
                 // Save Address Button
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _saveAddressDetails,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 96, 15, 196),
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text('SAVE ADDRESS DETAILS'),
-                  ),
-                ),
+                // Center(
+                //   child: ElevatedButton(
+                //     onPressed: _saveAddressDetails,
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: const Color.fromARGB(255, 96, 15, 196),
+                //       foregroundColor: Colors.white,
+                //     ),
+                //     child: const Text('SAVE ADDRESS DETAILS'),
+                //   ),
+                // ),
 
                 const SizedBox(height: 50.0),
 
@@ -389,6 +524,25 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
               ],
             ),
           ),
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.transparent,
+        child: ElevatedButton(
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              _saveAddressDetails();
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 96, 15, 196),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 15.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+          ),
+          child: const Text('SAVE ADDRESS DETAILS'),
         ),
       ),
     );

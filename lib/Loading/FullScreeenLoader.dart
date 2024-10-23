@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class FullscreenLoader extends StatelessWidget {
+  final message;
+  FullscreenLoader({required this.message});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +27,7 @@ class FullscreenLoader extends StatelessWidget {
               children: [
                 SizedBox(height: 20),
                 Text(
-                  "Loading ",
+                  message,
                   style: TextStyle(fontSize: 24), // Customize text style
                 ),
                 // Space between text and second loader
