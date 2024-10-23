@@ -132,9 +132,8 @@ class _LoginscreenState extends State<Loginscreen> {
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return "Enter a valid username";
-                              } else if (!GetUtils.isUsername(value)) {
-                                return "Enter a valid username";
                               }
+
                               return null; // No error
                             },
                           ),
