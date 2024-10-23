@@ -34,7 +34,6 @@ class LoginApiService {
         print("Successfully added");
         return json.decode(response.body);
       } else {
-        showErrorToast(msg:"server not respond");
         print(
             "============================================================== error");
         print("Response body: ${response.body}"); // Log response body
@@ -44,28 +43,30 @@ class LoginApiService {
         };
       }
     } catch (e) {
+      showErrorToast(msg: "server not respond");
       print(
           "============================================================== catch");
       print("Error details: $e"); // Log detailed error
       return {'error': 'An error occurred: $e'};
     }
   }
-
-  Future<Map<String, dynamic>> verifyOtp(String phoneNumber, String otp) async {
-    final url = 'http://localhost:9090/api/customers/verify-otp';
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'phoneNumber': phoneNumber,
-        'otp': otp,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to verify OTP: ${response.body}');
-    }
-  }
 }
+
+//   Future<Map<String, dynamic>> verifyOtp(String phoneNumber, String otp) async {
+//     final url = 'http://localhost:9090/api/customers/verify-otp';
+//     final response = await http.post(
+//       Uri.parse(url),
+//       headers: {'Content-Type': 'application/json'},
+//       body: jsonEncode({
+//         'phoneNumber': phoneNumber,
+//         'otp': otp,
+//       }),
+//     );
+
+//     if (response.statusCode == 200) {
+//       return jsonDecode(response.body);
+//     } else {
+//       throw Exception('Failed to verify OTP: ${response.body}');
+//     }
+//   }
+// }

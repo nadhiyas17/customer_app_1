@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class DialogHelper {
+class VerificationMessage {
   static Future<void> registraionMessage(BuildContext context) async {
     return showDialog<void>(
       context: context,

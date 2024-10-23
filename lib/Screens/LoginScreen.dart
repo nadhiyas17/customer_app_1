@@ -25,7 +25,7 @@ class _LoginscreenState extends State<Loginscreen> {
   final LoginApiService _loginapiService = LoginApiService();
   void _submitForm() async {
     if (_formKey.currentState!.validate() && agreeToTerms) {
-      getOTPButton.value = "Sending Otp...";
+      getOTPButton.value = "Sending OTP...";
       // Show sending OTP message
       isLoading.value = true; // Start loading
 
@@ -43,7 +43,9 @@ class _LoginscreenState extends State<Loginscreen> {
         // Check if the response is successful (assuming status 200 indicates success)
         if (response != null && response['status'] == 200) {
           // Show success toast
-          getOTPButton.value = "GET OTP";
+          setState(() {
+            getOTPButton.value = "GET OTP";
+          });
 
           // Navigate to OTP Screen
           Navigator.push(
@@ -56,24 +58,27 @@ class _LoginscreenState extends State<Loginscreen> {
             ),
           );
         } else {
-          getOTPButton.value = "GET OTP";
+          setState(() {
+            getOTPButton.value = "GET OTP";
+          });
           // Show error toast with the message from the response
           showErrorToast(
               msg: response['message'] ??
                   'Failed to sign in or sign up. Please try again.');
         }
       } catch (e) {
-        getOTPButton.value = "GET OTP";
+        setState(() {
+          getOTPButton.value = "GET OTP";
+        });
         // Handle the error (e.g., network issues, API errors)
         showErrorToast(msg: "An error occurred: ${e.toString()}");
       } finally {
         // Reset loading state
         isLoading.value = false; // Hide loading state
       }
-
-      if (!agreeToTerms) {
-        showErrorToast(msg: "You must agree to the terms to proceed.");
-      }
+    }
+    if (!agreeToTerms) {
+      showErrorToast(msg: "You must agree to the terms to proceed.");
     }
   }
 

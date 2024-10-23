@@ -8,6 +8,7 @@ import 'package:pinput/pinput.dart';
 import 'package:http/http.dart' as http;
 
 import '../APIs/BaseUrl.dart';
+import '../verification/registrationsuccess.dart';
 import '../verification/verficationmessage.dart';
 import '../Toasters/Toaster.dart';
 
@@ -100,16 +101,19 @@ class _OtpScreenState extends State<Otpscreencustomer> {
             );
 
             // Hide loading indicator and navigate to registration screen
-            DialogHelper.showVerificationDialog(context);
 
-            // Wait for 3 seconds before navigating
-            setState(() {
-              _isLoading = false; // Show loading indicator
-              _timer.cancel();
-            });
-            await Future.delayed(Duration(seconds: 3));
+            // if (responseData['registrationCompleted'] == false && responseData['basicInformation']= false) {
+            if (responseData['registrationCompleted'] == false) {
+              print(
+                  "hgkjdhkjfhdkjgfdgfd${responseData['registrationCompleted']}");
+              DialogHelper.showVerificationDialog(context);
 
-            // if (responseData['registrationCompleted'] == "false") {
+              // Wait for 3 seconds before navigating
+              setState(() {
+                _isLoading = false; // Show loading indicator
+                _timer.cancel();
+              });
+              await Future.delayed(Duration(seconds: 3));
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 "/registerScreen",
@@ -119,6 +123,48 @@ class _OtpScreenState extends State<Otpscreencustomer> {
                   widget.PhoneNumberstored,
                 ], // Pass arguments
               );
+            }
+            //  else if (responseData['registrationCompleted'] == false  && responseData['basicInformation']= true) {
+            else if (responseData['registrationCompleted'] == false) {
+              print(
+                  "hgkjdhkjfhdkjgfdgfd${responseData['registrationCompleted']}");
+              DialogHelper.showVerificationDialog(context);
+
+              // Wait for 3 seconds before navigating
+              setState(() {
+                _isLoading = false; // Show loading indicator
+                _timer.cancel();
+              });
+              await Future.delayed(Duration(seconds: 3));
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                "/registerScreen",
+                (Route<dynamic> route) => false, // Removes all previous routes
+                arguments: [
+                  widget.username,
+                  widget.PhoneNumberstored,
+                ], // Pass arguments
+              );
+            } else {
+              // print("elsexzxz${responseData['registrationCompleted']}");
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                "/dashboard", // This should match the registered route exactly
+                (Route<dynamic> route) => false, // Remove all previous routes
+                arguments:
+                    widget.username, // Pass the sublocality as an argument
+              );
+            }
+
+            // Navigator.pushNamedAndRemoveUntil(
+            //   context,
+            //   "/registerScreen",
+            //   (Route<dynamic> route) => false, // Removes all previous routes
+            //   arguments: [
+            //     widget.username,
+            //     widget.PhoneNumberstored,
+            //   ], // Pass arguments
+            // );
             // } else {
             //   Navigator.of(context).pushNamedAndRemoveUntil(
             //     '/dashboard',

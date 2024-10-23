@@ -1,6 +1,7 @@
 import 'package:cutomer_app/Toasters/Toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -64,6 +65,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       try {
         final response = await apiService.registerUser(user);
+
         context.loaderOverlay.hide(); // Hide loading overlay
 
         if (response['status'] == 200) {
@@ -95,20 +97,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: LoaderOverlay(
-        overlayColor: Colors.black87,
+        overlayColor: const Color.fromARGB(221, 46, 46, 46),
         overlayWidgetBuilder: (_) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircularProgressIndicator(),
-                const SizedBox(height: 20),
-                const Text(
-                  'Sending...',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Color.fromARGB(255, 227, 227, 227),
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SpinKitDoubleBounce(
+                        itemBuilder: (context, index) => Image.asset(
+                          'assets/white_logo.png', // Updated to load local image
+                          fit: BoxFit.cover,
+                        ),
+                        size: 70,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(height: 20),
+                          Text(
+                            "Loading ",
+                            style: TextStyle(
+                                fontSize: 24,
+                                color: Colors.white), // Customize text style
+                          ),
+                          // Space between text and second loader
+                          SpinKitThreeBounce(
+                            color: Colors
+                                .green, // Customize the color for the second loader
+                            size: 10.0, // Adjust size if necessary
+                          ),
+                        ],
+                      ), // Space between first loader and text
+                    ],
                   ),
                 ),
               ],
@@ -201,7 +228,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               ),
                               Positioned(
-                                left: 20.0,
+                                left: 10.0,
                                 top: 0.0,
                                 child: Container(
                                   color: Colors.white,
@@ -210,8 +237,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   child: Text(
                                     'Gender',
                                     style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.0,
                                     ),
                                   ),
                                 ),
@@ -263,7 +289,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     border: OutlineInputBorder(),
                                   ),
                                   inputFormatters: [
-                                    LengthLimitingTextInputFormatter(3),
+                                    LengthLimitingTextInputFormatter(2),
                                   ],
                                   keyboardType: TextInputType.number,
                                   autovalidateMode: AutovalidateMode.onUnfocus,
@@ -273,7 +299,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       return "Field should not be empty";
                                     } else if (!GetUtils.isNumericOnly(value)) {
                                       return "Enter a numeric value";
+                                    } else {
+                                      if (value.length > 2) {
+                                        return "Enter a below 2 values";
+                                      }
                                     }
+
                                     return null; // No error
                                   },
                                 ),

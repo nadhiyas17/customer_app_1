@@ -118,7 +118,7 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
           print(
               "[LOG - ${DateTime.now()}] Navigating to dashboard with sublocality: ${widget.sublocality}");
 
-          DialogHelper.registraionMessage(context);
+          VerificationMessage.registraionMessage(context);
 
           await Future.delayed(Duration(seconds: 3));
           Navigator.pushNamedAndRemoveUntil(
@@ -317,32 +317,36 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                   ],
                 ),
 
-                // Name field (required)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    controller: receiverNameController,
-                    decoration:
-                        const InputDecoration(labelText: 'Receiver\'s name'),
-                    validator: (value) => _validateField(value,
-                        isRequired: true, fieldName: 'Receiver\'s Name'),
-                  ),
-                ),
-
-                // Phone Number field (conditionally shown for Friends & Family, required)
-                if (selectedCategory == 'Friends & Family')
+                // Conditionally show input fields based on selected category
+                if (selectedCategory != null) ...[
+                  // Name field (required)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
-                      controller: phoneNumberController,
-                      decoration: const InputDecoration(
-                          labelText: 'Receiver\'s Phone Number'),
-                      keyboardType: TextInputType.phone,
+                      controller: receiverNameController,
+                      decoration:
+                          const InputDecoration(labelText: 'Receiver\'s name'),
                       validator: (value) => _validateField(value,
-                          isRequired: true,
-                          fieldName: 'Receiver\'s Phone Number'),
+                          isRequired: true, fieldName: 'Receiver\'s Name'),
                     ),
                   ),
+
+                  // Phone Number field (conditionally shown for Friends & Family, required)
+                  if (selectedCategory == 'Friends & Family') ...[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(
+                        controller: phoneNumberController,
+                        decoration: const InputDecoration(
+                            labelText: 'Receiver\'s Phone Number'),
+                        keyboardType: TextInputType.phone,
+                        validator: (value) => _validateField(value,
+                            isRequired: true,
+                            fieldName: 'Receiver\'s Phone Number'),
+                      ),
+                    ),
+                  ],
+                ],
 
                 const SizedBox(height: 50.0),
 

@@ -176,7 +176,7 @@ class _CurrentLocationlState extends State<CurrentLocationl> {
         // Success - navigate to the dashboard screen
         print(
             "[LOG - ${DateTime.now()}] Navigating to dashboard with sublocality: $sublocality");
-        DialogHelper.registraionMessage(context);
+        VerificationMessage.registraionMessage(context);
         await Future.delayed(Duration(seconds: 3));
 
         Navigator.pushNamedAndRemoveUntil(
