@@ -5,14 +5,13 @@ class AddressModel {
   String state;
   String postalCode;
   String country;
-  String apartment;
-  String direction;
+  String? apartment;
+  String? direction;
   double latitude;
   double longitude;
-
-  String saveAs;
-  String receiverName;
-  int receiverMobileNumber;
+  String? saveAs;
+  String? receiverName;
+  int? receiverMobileNumber;
 
   // Constructor
   AddressModel({
@@ -22,13 +21,13 @@ class AddressModel {
     required this.state,
     required this.postalCode,
     required this.country,
-    required this.apartment,
-    required this.direction,
+    this.apartment,
+    this.direction,
     required this.latitude,
     required this.longitude,
-    required this.saveAs,
-    required this.receiverName,
-    required this.receiverMobileNumber,
+    this.saveAs,
+    this.receiverName,
+    this.receiverMobileNumber,
   });
 
   // Factory method to create an instance from JSON

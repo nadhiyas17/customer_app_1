@@ -313,14 +313,19 @@ class _CurrentLocationlState extends State<AddAddress> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _onConfirmAddress,
+                          onPressed: _isLoading
+                              ? null
+                              : _onConfirmAddress, // Disable when loading
                           child: Text(
                             "Confirm Address".toUpperCase(),
                             style: TextStyle(fontSize: 18),
                           ),
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(vertical: 12.0),
-                            backgroundColor: Color(0xFF6B3FA0),
+                            backgroundColor: _isLoading
+                                ? Colors.grey
+                                : Color(
+                                    0xFF6B3FA0), // Change color when disabled
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),

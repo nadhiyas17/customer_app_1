@@ -1,5 +1,7 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_contacts/contact.dart' as contacts_service;
 
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,9 +12,6 @@ import '../Modals/AddressModal.dart';
 import '../Toasters/Toaster.dart';
 import '../verification/registrationsuccess.dart';
 // import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:contacts_service/contacts_service.dart' as contacts_service;
-
-import 'package:flutter_contacts/contact.dart';
 
 class SaveAddressScreen extends StatefulWidget {
   final String? sublocality;
@@ -180,85 +179,84 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
     selectedCategory = null;
   }
 
-  Future<void> _openPhoneBook() async {
-    print("Attempting to open phone book...");
+  // Future<void> _openPhoneBook() async {
+  //   print("Attempting to open phone book...");
 
-    PermissionStatus permission = await Permission.contacts.status;
-    print('Initial permission status: $permission');
+  //   PermissionStatus permission = await Permission.contacts.status;
+  //   print('Initial permission status: $permission');
 
-    if (permission.isDenied) {
-      permission = await Permission.contacts.request();
-      print('Requested permission status: $permission');
-    }
+  //   if (permission.isDenied) {
+  //     permission = await Permission.contacts.request();
+  //     print('Requested permission status: $permission');
+  //   }
 
-    if (permission.isGranted) {
-      try {
-        Iterable<contacts_service.Contact> contacts =
-            await contacts_service.ContactsService.getContacts();
-        print('Fetched contacts: ${contacts.length} found.');
+  //   if (permission.isGranted) {
+  //     try {
+  //       Iterable<Contact> contacts = await ContactsService.getContacts();
+  //       print('Fetched contacts: ${contacts.length} found.');
 
-        if (contacts.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No contacts found.')),
-          );
-          return;
-        }
+  //       if (contacts.isEmpty) {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(content: Text('No contacts found.')),
+  //         );
+  //         return;
+  //       }
 
-        contacts_service.Contact? selectedContact =
-            await showDialog<contacts_service.Contact>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Select a contact'),
-              content: Container(
-                width: double.maxFinite,
-                height: 400.0,
-                child: ListView.builder(
-                  itemCount: contacts.length,
-                  itemBuilder: (context, index) {
-                    contacts_service.Contact contact =
-                        contacts.elementAt(index);
-                    return ListTile(
-                      title: Text(contact.displayName ?? ''),
-                      onTap: () {
-                        Navigator.of(context).pop(contact);
-                      },
-                    );
-                  },
-                ),
-              ),
-            );
-          },
-        );
+  //       Contact? selectedContact = await showDialog<Contact>(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: const Text('Select a contact'),
+  //             content: Container(
+  //               width: double.maxFinite,
+  //               height: 400.0,
+  //               child: ListView.builder(
+  //                 itemCount: contacts.length,
+  //                 itemBuilder: (context, index) {
+  //                   Contact contact = contacts.elementAt(index);
+  //                   return ListTile(
+  //                     title: Text(contact.displayName ?? ''),
+  //                     onTap: () {
+  //                       Navigator.of(context).pop(contact);
+  //                     },
+  //                   );
+  //                 },
+  //               ),
+  //             ),
+  //           );
+  //         },
+  //       );
 
-        if (selectedContact != null && selectedContact.phones!.isNotEmpty) {
-          setState(() {
-            phoneNumberController.text =
-                selectedContact.phones!.first.value ?? '';
-          });
-        }
-      } catch (e) {
-        print('Error fetching contacts: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to fetch contacts: $e')),
-        );
-      }
-    } else if (permission.isPermanentlyDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              'Permission to access contacts is permanently denied. Please enable it in settings.'),
-        ),
-      );
-      openAppSettings();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Permission to access contacts was denied.'),
-        ),
-      );
-    }
-  }
+  //       if (selectedContact != null &&
+  //           selectedContact.phones != null &&
+  //           selectedContact.phones!.isNotEmpty) {
+  //         setState(() {
+  //           phoneNumberController.text =
+  //               selectedContact.phones!.first.value ?? '';
+  //         });
+  //       }
+  //     } catch (e) {
+  //       print('Error fetching contacts: $e');
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Failed to fetch contacts: $e')),
+  //       );
+  //     }
+  //   } else if (permission.isPermanentlyDenied) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text(
+  //             'Permission to access contacts is permanently denied. Please enable it in settings.'),
+  //       ),
+  //     );
+  //     openAppSettings();
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Permission to access contacts was denied.'),
+  //       ),
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -475,7 +473,8 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                         // Phone icon
                         suffixIcon: IconButton(
                           icon: Icon(Icons.contacts), // Phonebook icon
-                          onPressed: _openPhoneBook, // Open phonebook on click
+                          // onPressed: _openPhoneBook, // Open phonebook on click
+                          onPressed: () {}, // Open phonebook on click
                         ), // Phone icon
                       ),
                       keyboardType: TextInputType.phone,

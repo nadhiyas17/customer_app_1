@@ -9,7 +9,7 @@ class ApiService {
 
   // Method to register the user
   Future<Map<String, dynamic>> registerUser(RegisterModel user) async {
-    final url = Uri.parse('$baseUrl/complete-registration');
+    final url = Uri.parse('$baseUrl/basic-details');
 
     try {
       // Log: Starting API call
