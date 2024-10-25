@@ -166,7 +166,7 @@ class _LocationScreenState extends State<LocationScreen> {
     return Scaffold(
       body: Center(
         child: isLoading
-            ? FullscreenLoader(message: "Fetching Address")
+            ? FullscreenLoader(message: "Fetching Location")
             : Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Column(

@@ -421,7 +421,7 @@ class _OtpScreenState extends State<Otpscreencustomer> {
                           Navigator.pop(context); // Navigate back
                         },
                         child: const Text(
-                          'Chanage Mobile Number',
+                          'Change Mobile Number',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 12.0,
@@ -430,21 +430,34 @@ class _OtpScreenState extends State<Otpscreencustomer> {
                         ),
                       ),
                       const SizedBox(height: 20.0),
-                      if (_isLoading)
-                        const CircularProgressIndicator(), // Show loader
-                      const Text(
-                        'Copyright © 2024 - SureCare',
-                        style: TextStyle(
-                          fontSize: 12.0,
-                          color: Colors.grey,
-                        ),
-                      ),
                     ],
                   ),
                 ),
               ],
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize
+                .min, // Ensures the column takes minimal vertical space
+            children: [
+              if (_isLoading)
+                const CircularProgressIndicator(), // Show loader if loading
+              if (!_isLoading)
+                const Text(
+                  'Copyright © 2024 - SureCare',
+                  style: TextStyle(
+                    fontSize: 12.0,
+                    color: Colors.grey,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

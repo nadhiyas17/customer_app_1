@@ -27,7 +27,7 @@ class LoginApiService {
       print('===================================${response.body}');
       if (response.statusCode == 200) {
         showSuccessToast(
-          msg: 'OTP Send successfully',
+          msg: 'OTP Sent successfully',
         );
         print(
             "============================================================== success");
