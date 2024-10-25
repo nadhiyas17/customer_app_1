@@ -294,19 +294,6 @@ class _OtpScreenState extends State<Otpscreencustomer> {
                               ),
                             ),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context); // Navigate back
-                            },
-                            child: const Text(
-                              'Edit Number',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12.0,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
 
@@ -400,7 +387,7 @@ class _OtpScreenState extends State<Otpscreencustomer> {
                                 TextSpan(
                                   text: _failedAttempts >= 2
                                       ? "You have made '2' unsuccessful attempts. Need assistance? "
-                                      : "Didn't receive OTP? ",
+                                      : "Didn't receive OTP?, Resend ",
                                   style: TextStyle(
                                     fontSize: 16.0,
                                     color: _canResend || _failedAttempts >= 2
@@ -429,7 +416,19 @@ class _OtpScreenState extends State<Otpscreencustomer> {
                           ),
                         ),
                       ),
-
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Navigate back
+                        },
+                        child: const Text(
+                          'Chanage Mobile Number',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12.0,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 20.0),
                       if (_isLoading)
                         const CircularProgressIndicator(), // Show loader

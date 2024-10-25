@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_contacts/contact.dart' as contacts_service;
+import 'package:fluttercontactpicker/fluttercontactpicker.dart';
 
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -177,6 +177,43 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
     receiverNameController.clear();
     phoneNumberController.clear();
     selectedCategory = null;
+  }
+
+  PhoneContact? _selectedContact;
+
+  Future<void> _pickPhoneContact() async {
+    // showSuccessToast(msg: "_pickPhoneContact");
+
+    try {
+      // Request permission to access contacts if not granted already
+      PermissionStatus permissionStatus = await Permission.contacts.status;
+      if (permissionStatus != PermissionStatus.granted) {
+        permissionStatus = await Permission.contacts.request();
+        if (permissionStatus != PermissionStatus.granted) {
+          showErrorToast(msg: "Contacts permission denied");
+          return;
+        }
+      }
+
+      final PhoneContact contact =
+          await FlutterContactPicker.pickPhoneContact();
+
+      // Check if contact and phone number are not null
+      if (contact != null &&
+          contact.phoneNumber != null &&
+          contact.phoneNumber!.number != null) {
+        setState(() {
+          _selectedContact = contact;
+          showSuccessToast(msg: "Selected Contact: ${contact.fullName}");
+          phoneNumberController.text = contact.phoneNumber!.number!;
+        });
+      } else {
+        showErrorToast(msg: "No phone number found in contact");
+      }
+    } catch (e) {
+      showErrorToast(msg: "Failed to pick contact");
+      print('Failed to pick contact: ${e.toString()}');
+    }
   }
 
   // Future<void> _openPhoneBook() async {
@@ -429,7 +466,8 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
 
                         suffixIcon: IconButton(
                           icon: Icon(Icons.contacts), // Phonebook icon
-                          onPressed: () {}, // Open phonebook on click
+                          onPressed:
+                              _pickPhoneContact, // Open phonebook on click
                         ), // Phone icon
                       ),
                       keyboardType: TextInputType.phone,
@@ -474,7 +512,8 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                         suffixIcon: IconButton(
                           icon: Icon(Icons.contacts), // Phonebook icon
                           // onPressed: _openPhoneBook, // Open phonebook on click
-                          onPressed: () {}, // Open phonebook on click
+                          onPressed:
+                              _pickPhoneContact, // Open phonebook on click
                         ), // Phone icon
                       ),
                       keyboardType: TextInputType.phone,
@@ -485,15 +524,14 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                 // const SizedBox(height: 50.0),
 
                 // Save Address Button
-                // Center(
-                //   child: ElevatedButton(
-                //     onPressed: _saveAddressDetails,
-                //     style: ElevatedButton.styleFrom(
-                //       backgroundColor: const Color.fromARGB(255, 96, 15, 196),
-                //       foregroundColor: Colors.white,
-                //     ),
-                //     child: const Text('SAVE ADDRESS DETAILS'),
-                //   ),
+                SizedBox(height: 10.0),
+                Center(
+                  child: Text(
+                    "If you don't provide a phone number, we will use the following number to contact you: ${widget.mobileNumber}.",
+                    style:
+                        TextStyle(color: const Color.fromARGB(255, 173, 86, 4)),
+                  ),
+                ),
                 // ),
 
                 const SizedBox(height: 50.0),
