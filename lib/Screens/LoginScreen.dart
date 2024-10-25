@@ -231,21 +231,22 @@ class _LoginscreenState extends State<Loginscreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10.0),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Copyright © 2024 - SureCare',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12.0),
-                    ),
-                  ),
+                  
                 ],
               ),
             ),
           ],
         ),
       ),
-    );
+       bottomNavigationBar: BottomAppBar(
+          color: Colors.transparent,
+          child: Center(
+            child: Text(
+              'Copyright © 2024 - SureCare',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        ));
+    
   }
 }
