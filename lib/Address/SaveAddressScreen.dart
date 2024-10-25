@@ -324,17 +324,17 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                   height: 200.0,
                   width: double.infinity,
                   child: GoogleMap(
-                    initialCameraPosition: const CameraPosition(
-                      target: LatLng(
-                          17.428549, 78.464774), // Jubilee Hills coordinates
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(widget.lat ?? 0.0,
+                          widget.lng ?? 0.0), // Jubilee Hills coordinates
                       zoom: 15.0,
                     ),
                     markers: {
                       Marker(
-                        markerId: const MarkerId('JubileeHills'),
-                        position: const LatLng(17.428549, 78.464774),
+                        markerId: const MarkerId('current location'),
+                        position: LatLng(widget.lat ?? 0.0, widget.lng ?? 0.0),
                         infoWindow: const InfoWindow(
-                          title: 'Jubilee Hills',
+                          title: 'current location',
                           snippet: 'This is a snippet',
                         ),
                       ),
@@ -519,19 +519,20 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                       keyboardType: TextInputType.phone,
                     ),
                   ),
+                  SizedBox(height: 10.0),
+                  Center(
+                    child: Text(
+                      "If you don't provide a phone number, we will use the following number to contact you: ${widget.mobileNumber}.",
+                      style: TextStyle(
+                          color: const Color.fromARGB(255, 173, 86, 4)),
+                    ),
+                  ),
                 ],
 
                 // const SizedBox(height: 50.0),
 
                 // Save Address Button
-                SizedBox(height: 10.0),
-                Center(
-                  child: Text(
-                    "If you don't provide a phone number, we will use the following number to contact you: ${widget.mobileNumber}.",
-                    style:
-                        TextStyle(color: const Color.fromARGB(255, 173, 86, 4)),
-                  ),
-                ),
+
                 // ),
 
                 const SizedBox(height: 50.0),

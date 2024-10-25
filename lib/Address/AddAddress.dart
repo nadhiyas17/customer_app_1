@@ -14,7 +14,7 @@ import 'GoogleMapSearchPlacesApi.dart';
 import 'SaveAddressScreen.dart';
 
 const kGoogleApiKey =
-    'AIzaSyDY_mNvqPbcGCRiwor1IVcJ5pyRmstm9XY'; // Replace with your API key
+    'AIzaSyCmVhTkTe3fL1MI0VA7V4znEUTS56q2RMg'; // Replace with your API key
 final GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
 class AddAddress extends StatefulWidget {

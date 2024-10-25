@@ -87,6 +87,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         print("Error: $e"); // Log the error for debugging
       }
     } else {
+      context.loaderOverlay.hide();
       // Optionally provide feedback for validation errors
       showErrorToast(msg: "Please fill in all required fields correctly.");
     }
