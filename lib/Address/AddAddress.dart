@@ -19,8 +19,14 @@ final GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
 class AddAddress extends StatefulWidget {
   final String mobileNumber;
-  // Constructor with required mobileNumber
-  const AddAddress({super.key, required this.mobileNumber});
+  final String addressSearch;
+ 
+
+ const AddAddress({
+    Key? key,
+    required this.mobileNumber,
+    required this.addressSearch,
+  }) : super(key: key);
 
   @override
   State<AddAddress> createState() => _CurrentLocationlState();
@@ -107,7 +113,7 @@ class _CurrentLocationlState extends State<AddAddress> {
 
   void _moveCamera(LatLng position) {
     _mapController.animateCamera(
-      CameraUpdate.newLatLngZoom(position, 16),
+      CameraUpdate.newLatLngZoom(position, 18),
     );
   }
 
@@ -122,12 +128,25 @@ class _CurrentLocationlState extends State<AddAddress> {
     });
   }
 
+  // Future<void> _onSearchAddress(String query) async {
+  //   final response = await _places.searchByText(query);
+  //   if (response.isOkay && response.results.isNotEmpty) {
+  //     final result = response.results.first;
+  //     _moveCamera(
+  //         LatLng(result.geometry!.location.lat, result.geometry!.location.lng));
+  //   }
+  // }
+
   Future<void> _onSearchAddress(String query) async {
+    // print("jhjhjdjskfhkdsh${lat}");
     final response = await _places.searchByText(query);
     if (response.isOkay && response.results.isNotEmpty) {
       final result = response.results.first;
-      _moveCamera(
-          LatLng(result.geometry!.location.lat, result.geometry!.location.lng));
+      LatLng position =
+          LatLng(result.geometry!.location.lat, result.geometry!.location.lng);
+
+      _moveCamera(position);
+      _updatePosition(position.latitude, position.longitude);
     }
   }
 
@@ -140,6 +159,7 @@ class _CurrentLocationlState extends State<AddAddress> {
         builder: (context) => SaveAddressScreen(
             street: street,
             sublocality: sublocality,
+            locality: locality,
             administrativeArea: administrativeArea,
             postalCode: postalCode,
             country: country,
@@ -151,12 +171,19 @@ class _CurrentLocationlState extends State<AddAddress> {
     );
   }
 
+
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF6B3FA0),
         title: Text("Add Address", style: TextStyle(color: Colors.white)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
         actions: [
           IconButton(
             icon: Icon(
@@ -191,7 +218,7 @@ class _CurrentLocationlState extends State<AddAddress> {
                       onMapCreated: _onMapCreated,
                       initialCameraPosition: CameraPosition(
                         target: currentPosition,
-                        zoom: 14.0,
+                        zoom: 18.0,
                       ),
                       markers: {
                         Marker(
@@ -201,14 +228,14 @@ class _CurrentLocationlState extends State<AddAddress> {
                       },
                       onCameraMove: _onCameraMove,
                     ),
-                    Align(
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.location_on,
-                        size: 50,
-                        color: Colors.red,
-                      ),
-                    ),
+                    // Align(
+                    //   alignment: Alignment.center,
+                    //   child: Icon(
+                    //     Icons.location_on,
+                    //     size: 50,
+                    //     color: Colors.red,
+                    //   ),
+                    // ),
                     // "Locate Me" button at the top and centered
                     Positioned(
                       left: 16,
@@ -250,28 +277,31 @@ class _CurrentLocationlState extends State<AddAddress> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Current Location:",
+                            "Current Location",
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    10), // Set the border radius to 10
-                              ),
-                            ),
-                            child: Text(
-                              "Change".toUpperCase(),
-                              style: TextStyle(color: Colors.red, fontSize: 16),
-                            ),
-                          ),
+                          // ElevatedButton(
+                          //   onPressed: () {
+                          //     Navigator.pop(context);
+                          //   },
+                          //   style: ElevatedButton.styleFrom(
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(
+                          //           10), // Set the border radius to 10
+                          //     ),
+                          //   ),
+                          //   child: Text(
+                          //     "Change".toUpperCase(),
+                          //     style: TextStyle(color: Colors.red, fontSize: 16),
+                          //   ),
+                          // ),
                         ],
+                      ),
+                      SizedBox(
+                        height: 20.0,
                       ),
                       SingleChildScrollView(
                         child: Row(
@@ -284,9 +314,9 @@ class _CurrentLocationlState extends State<AddAddress> {
                             Text(
                               sublocality,
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 18,
                                 color: Colors.red,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
                             SizedBox(width: 8.0),
@@ -303,7 +333,6 @@ class _CurrentLocationlState extends State<AddAddress> {
                               style: TextStyle(
                                 fontSize: 16,
                                 color: const Color.fromARGB(255, 0, 0, 0),
-                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),

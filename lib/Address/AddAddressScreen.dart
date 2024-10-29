@@ -1,10 +1,15 @@
+import 'dart:convert';
+import 'package:cutomer_app/Address/AddAddress.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 
 class AddAddressScreen extends StatefulWidget {
   final String mobileNumber;
-  // Constructor to accept the mobile number
   const AddAddressScreen({super.key, required this.mobileNumber});
 
   @override
@@ -12,40 +17,91 @@ class AddAddressScreen extends StatefulWidget {
 }
 
 class _AddAddressScreenState extends State<AddAddressScreen> {
+  final _controller = TextEditingController();
   String _address = "";
   bool _isUsingCurrentLocation = false;
   List<String> _savedAddresses = [];
-
+  List<dynamic> _placeList = [];
+  String _sessionToken = '1234567890';
+  final uuid = Uuid();
+ String selectedAddress = '';
+  LatLng currentPosition = LatLng(0, 0);
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    _controller.addListener(_onChanged);
+  }
+  void _clearSearch() {
+    setState(() {
+      _controller.clear();
+      _placeList.clear();
+    });
+  }
+  // Function to handle the search field changes
+  _onChanged() {
+    if (_sessionToken.isEmpty) {
+      setState(() {
+        _sessionToken = uuid.v4();
+      });
+    }
+    getSuggestion(_controller.text);
+  }
+
+  // Function to get suggestions from Google Places API
+  void getSuggestion(String input) async {
+    const String PLACES_API_KEY =
+        "AIzaSyCmVhTkTe3fL1MI0VA7V4znEUTS56q2RMg"; // Replace with your API key
+    String baseURL =
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+    String request =
+        '$baseURL?input=$input&key=$PLACES_API_KEY&sessiontoken=$_sessionToken';
+
+    try {
+      var response = await http.get(Uri.parse(request));
+      if (response.statusCode == 200) {
+        setState(() {
+          _placeList = json.decode(response.body)['predictions'];
+          // print("hdfkjhddsadskfhk${_placeList[index]["description"]}");
+          print("hdfkjhdskfhkdh${response.body}");
+        });
+      } else {
+        throw Exception('Failed to load predictions');
+      }
+    } catch (e) {
+      print("Error fetching suggestions: $e");
+    }
   }
 
   // Function to get the current location of the user
   Future<void> _getCurrentLocation() async {
     try {
       LocationSettings locationSettings = LocationSettings(
-        accuracy: LocationAccuracy
-            .high, // You can use LocationAccuracy.low, medium, etc.
-        distanceFilter:
-            100, // Optional: distance in meters before location updates
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 100,
       );
 
       Position position = await Geolocator.getCurrentPosition(
-        locationSettings: locationSettings,
-      );
+          locationSettings: locationSettings);
+
+          
       setState(() {
         _isUsingCurrentLocation = true;
         _getAddress(position.latitude, position.longitude);
+        
       });
     } catch (e) {
       print("Error getting current location: $e");
     }
+    
   }
 
   // Function to get the address from coordinates
   Future<void> _getAddress(double latitude, double longitude) async {
+    print("%^&&*YFGHJK${latitude}");
+    print("%^&&*YFGHJK${latitude}");
+ 
+
     try {
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude);
@@ -53,6 +109,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         Placemark place = placemarks[0];
         _address =
             "${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.postalCode}, ${place.country}";
+ currentPosition = LatLng(latitude, longitude);
+            
         setState(() {});
       }
     } catch (e) {
@@ -77,35 +135,22 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     Navigator.pushNamed(
       context,
       "/addaddress",
-      arguments: widget.mobileNumber, // Passing the mobile number as argument
+      arguments: [widget.mobileNumber, widget.selectedAddress]
     );
-    // TODO: Implement logic to add a new address
+    print("Add new address clickeddsd${selectedAddress}");
     print("Add new address clicked");
-
-    // AddAddress
   }
 
   @override
-  Widget build(BuildContext context) {
+   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF6B3FA0), // Blue from the mock screen
-        title: Text(
-          'Add Address',
-          style: TextStyle(color: Colors.white), // White text for title
-        ),
+        backgroundColor: Color(0xFF6B3FA0),
+        title: Text('Add Address', style: TextStyle(color: Colors.white)),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white), // White back icon
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        // actions: [
-        //   IconButton(
-        //     icon: Icon(Icons.home, color: Colors.white), // White home icon
-        //     onPressed: () {
-        //       // Handle home button action
-        //     },
-        //   ),
-        // ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
@@ -113,68 +158,60 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
+              controller: _controller,
               decoration: InputDecoration(
                 hintText: 'Try for area, city...',
-                hintStyle:
-                    TextStyle(color: Colors.grey), // Light gray hint text
-                contentPadding: EdgeInsets.all(12.0), // Add content padding
+                hintStyle: TextStyle(color: Colors.grey),
+                contentPadding: EdgeInsets.all(12.0),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0), // Rounded border
-                  borderSide:
-                      BorderSide(color: Color(0xFFE0E0E0)), // Light gray border
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide(color: Color(0xFFE0E0E0)),
                 ),
-                suffixIcon: Icon(Icons.search),
+                suffixIcon: _controller.text.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear),
+                        onPressed: _clearSearch,
+                      )
+                    : Icon(Icons.search),
               ),
-              onChanged: (value) {
-                // Handle address search
-              },
             ),
-            ListTile(
-              leading: Icon(
-                Icons.my_location,
-                color: Colors.red,
+            if (_controller.text.isEmpty)
+              ListTile(
+                leading: Icon(Icons.add, color: Colors.red),
+                title: Text('Add new address', style: TextStyle(color: Colors.red)),
+                onTap: _addNewAddress,
               ),
-              title: Text(
-                'Use my current location',
-                style: TextStyle(
-                    color:
-                        Colors.red), // Red text for "Use my current location"
-              ),
-              trailing: Icon(
-                Icons.chevron_right,
-              ),
-              onTap: _useCurrentLocation,
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.add,
-                color: Colors.red,
-              ),
-              title: Text(
-                'Add new address',
-                style: TextStyle(
-                    color: Colors.red), // Red text for "Add new address"
-              ),
-              onTap: _addNewAddress,
-            ),
-            Divider(
-              color: Color(0xFFE0E0E0), // Light gray divider
-            ),
-            // Text(
-            //   'SAVED ADDRESSES',
-            //   style: TextStyle(fontWeight: FontWeight.bold,
-            //   color: Colors.grey),
-
-            //    // Bold text for saved addresses heading
-            // ),
+            Divider(color: Color(0xFFE0E0E0)),
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
-              itemCount: _savedAddresses.length,
+              itemCount: _placeList.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(_savedAddresses[index]),
-                  // Add more actions or buttons as needed
+                  title: Text(_placeList[index]["description"] ?? ''),
+                  onTap: () {
+                    setState(() {
+                      _controller.text = _placeList[index]["description"] ?? '';
+                      _placeList = [];
+                     
+                    });
+                     Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddAddress(
+              mobileNumber: widget.mobileNumber,
+              addressSearch: selectedAddress, // Pass the selected address
+              // Optionally pass latitude and longitude if you have them
+            ),
+          ),
+        );
+        
+           setState(() {
+          _controller.text = selectedAddress;
+       print("JHJHGJHHJ%${currentPosition}");
+          _placeList = [];
+        });
+                  },
                 );
               },
             ),

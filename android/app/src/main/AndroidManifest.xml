@@ -13,12 +13,13 @@
     
 
     <application
-        android:label="SureCare \n Customer_App"
+        android:label="Customer App"
         android:name="${applicationName}"
         android:icon="@mipmap/surecare_launcher"
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true"
-        android:foregroundServiceType="location">
+        android:foregroundServiceType="location"
+        >
 
          <meta-data
                 android:name="com.google.android.geo.API_KEY"

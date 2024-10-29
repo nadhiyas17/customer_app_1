@@ -14,9 +14,9 @@ import '../verification/registrationsuccess.dart';
 // import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class SaveAddressScreen extends StatefulWidget {
-  final String? sublocality;
+  final String sublocality;
   final String? street;
-  final String? locality;
+  final String locality;
   final String? postalCode;
   final String? administrativeArea;
   final String? country;
@@ -26,9 +26,9 @@ class SaveAddressScreen extends StatefulWidget {
 
   SaveAddressScreen({
     Key? key,
-    this.sublocality,
+    required this.sublocality,
     this.street,
-    this.locality,
+    required this.locality,
     this.postalCode,
     this.administrativeArea,
     this.country,
@@ -167,6 +167,9 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
           ? phoneNumberController.text
           : 'N/A',
     };
+
+    String? fullAddress =
+        "${widget.street}, ${widget.locality} - ${widget.postalCode}, ${widget.administrativeArea}, ${widget.country}";
 
     // setState(() {
     //   _savedAddresses.add(address);
@@ -311,14 +314,12 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(0.0),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 16.0),
-
                 // Google Map Display
                 Container(
                   height: 200.0,
@@ -327,39 +328,120 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                     initialCameraPosition: CameraPosition(
                       target: LatLng(widget.lat ?? 0.0,
                           widget.lng ?? 0.0), // Jubilee Hills coordinates
-                      zoom: 15.0,
+                      zoom: 18.0,
                     ),
                     markers: {
                       Marker(
                         markerId: const MarkerId('current location'),
                         position: LatLng(widget.lat ?? 0.0, widget.lng ?? 0.0),
-                        infoWindow: const InfoWindow(
+                        infoWindow: InfoWindow(
                           title: 'current location',
-                          snippet: 'This is a snippet',
+                          snippet: widget.sublocality,
                         ),
                       ),
                     },
                   ),
                 ),
 
-                const SizedBox(height: 16.0),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.location_on,
+                            color: Colors.red,
+                            size: 24.0,
+                          ),
+                          Text(
+                            widget.sublocality,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        width: 10.0,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "${widget.street}, ${widget.locality} - ${widget.postalCode}, ${widget.administrativeArea}, ${widget.country}",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  children: [
+                    // Instruction message box at the top
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20.0,
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color.fromRGBO(244, 67, 54, 0.2),
+                          border: Border.all(
+                              color: const Color.fromRGBO(244, 67, 54, 1),
+                              ),
+                          // Red border with 2px width
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(10)), // Rounded corners
+                        ),
+
+                        padding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        margin: EdgeInsets.only(
+                            bottom: 16), // Adds space below the box
+                        child: Row(
+                          children: [
+                            Icon(Icons.info,
+                                color: const Color.fromARGB(255, 0, 0, 0)),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                "A detailed address will help our caregiver reach your doorstep easily.",
+                                style: TextStyle(
+                                  color: const Color.fromARGB(255, 0, 0, 0),
+                                  fontSize: 14,
+                                  
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // The rest of your code...
+                  ],
+                ),
 
                 // House/Flat/Floor field (required)
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 10.0),
                   child: TextFormField(
                     controller: houseController,
                     autovalidateMode: AutovalidateMode.onUnfocus,
                     decoration: const InputDecoration(
-                        labelText: 'HOUSE / FLAT / FLOOR NO.'),
+                        labelText: 'HOUSE / FLAT / FLOOR NO.',
+                        helperStyle: TextStyle(
+                          fontSize: 12.0,
+                        )),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Enter a valid HOUSE / FLAT / FLOOR NO.";
                       }
-                      // else if (!GetUtils.isUsername(value)) {
-                      //   // Adjust validation condition if needed
-                      //   return "Invalid input for HOUSE / FLAT / FLOOR NO.";
-                      // }
+
                       return null; // No error
                     },
                   ),
@@ -367,72 +449,128 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
 
                 // Apartment/Road/Area field (optional, with validation)
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 10.0),
                   child: TextFormField(
                     controller: apartmentController,
                     decoration: const InputDecoration(
-                        labelText: 'APARTMENT / ROAD / AREA (OPTIONAL)'),
+                        labelText: 'APARTMENT / ROAD / AREA (OPTIONAL)',
+                        helperStyle: TextStyle(
+                          fontSize: 12.0,
+                        )),
                   ),
                 ),
 
                 // Direction to reach field (optional, with validation)
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 10.0),
                   child: TextFormField(
                     controller: directionController,
                     decoration: const InputDecoration(
-                        labelText: 'DIRECTION TO REACH (OPTIONAL)'),
+                        labelText: 'DIRECTION TO REACH (OPTIONAL)',
+                        helperStyle: TextStyle(
+                          fontSize: 12.0,
+                        )),
                   ),
                 ),
 
                 const SizedBox(height: 16.0),
-                const Text('SAVE AS'),
-
-                // Save As buttons (Friends & Family, Others)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedCategory =
-                              selectedCategory == 'Friends & Family'
-                                  ? null
-                                  : 'Friends & Family'; // Toggle the button
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedCategory == 'Friends & Family'
-                            ? Colors.purple
-                            : Colors.grey,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text('Friends & Family'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedCategory = selectedCategory == 'Others'
-                              ? null
-                              : 'Others'; // Toggle the button
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedCategory == 'Others'
-                            ? Colors.purple
-                            : Colors.grey,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text('Others'),
-                    ),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                  ),
+                  child: Text(
+                    'SAVE AS',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
-
+                const SizedBox(height: 16.0),
+                // Save As buttons (Friends & Family, Others)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            selectedCategory =
+                                selectedCategory == 'Home' ? null : 'Home';
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: selectedCategory == 'Home'
+                              ? Colors.grey
+                              : Colors.white,
+                          foregroundColor: selectedCategory == 'Home'
+                              ? Colors.white
+                              : Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          side: const BorderSide(
+                              color: Color.fromARGB(66, 0, 0, 0)),
+                        ),
+                        child: const Text('Home'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            selectedCategory =
+                                selectedCategory == 'Friends & Family'
+                                    ? null
+                                    : 'Friends & Family';
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              selectedCategory == 'Friends & Family'
+                                  ? Colors.grey
+                                  : Colors.white,
+                          foregroundColor:
+                              selectedCategory == 'Friends & Family'
+                                  ? Colors.white
+                                  : Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          side: const BorderSide(
+                              color: Color.fromARGB(63, 0, 0, 0)),
+                        ),
+                        child: const Text('Friends & Family'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            selectedCategory =
+                                selectedCategory == 'Others' ? null : 'Others';
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: selectedCategory == 'Others'
+                              ? Colors.grey
+                              : Colors.white,
+                          foregroundColor: selectedCategory == 'Others'
+                              ? Colors.white
+                              : Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          side: const BorderSide(
+                              color: Color.fromARGB(67, 0, 0, 0)),
+                        ),
+                        child: const Text('Others'),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16.0),
                 // Conditionally show input fields based on selected category
                 if (selectedCategory == 'Friends & Family') ...[
                   // Name field (required)
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
                     child: TextFormField(
                       controller: receiverNameController,
                       decoration: const InputDecoration(
@@ -450,10 +588,11 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                       },
                     ),
                   ),
+                  SizedBox(height: 15.0),
 
                   // Phone Number field (required for Friends & Family)
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
                     child: TextFormField(
                       controller: phoneNumberController,
                       inputFormatters: [
@@ -473,12 +612,23 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                       keyboardType: TextInputType.phone,
                     ),
                   ),
+                  SizedBox(height: 10.0),
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      child: Text(
+                        "If you don't provide a phone number, we will use the following number to contact you: ${widget.mobileNumber}.",
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 173, 86, 4)),
+                      ),
+                    ),
+                  ),
                 ],
 
                 if (selectedCategory == 'Others') ...[
                   // Optionally, you could add additional fields or a message here for "Others"
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
                     child: TextFormField(
                       controller: receiverNameController,
                       autovalidateMode: AutovalidateMode.onUnfocus,
@@ -496,10 +646,10 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                       },
                     ),
                   ),
-
+                  SizedBox(height: 15.0),
                   // Phone Number field (required for Friends & Family)
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
                     child: TextFormField(
                       controller: phoneNumberController,
                       inputFormatters: [
@@ -520,11 +670,14 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                     ),
                   ),
                   SizedBox(height: 10.0),
-                  Center(
-                    child: Text(
-                      "If you don't provide a phone number, we will use the following number to contact you: ${widget.mobileNumber}.",
-                      style: TextStyle(
-                          color: const Color.fromARGB(255, 173, 86, 4)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                    child: Center(
+                      child: Text(
+                        "If you don't provide a phone number, we will use the following number to contact you: ${widget.mobileNumber}.",
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 173, 86, 4)),
+                      ),
                     ),
                   ),
                 ],

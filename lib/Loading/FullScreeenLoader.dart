@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class FullscreenLoader extends StatelessWidget {
-  final message;
+  final String message;
+
   FullscreenLoader({required this.message});
 
   @override
@@ -14,30 +15,25 @@ class FullscreenLoader extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SpinKitDoubleBounce(
-              itemBuilder: (context, index) => Image.asset(
-                'assets/surecare_launcher.png', // Updated to load local image
-                fit: BoxFit.cover,
-              ),
-              size: 70,
+            SpinKitCircle(
+              color: Colors.blue, // Customize color as needed
+              size: 70.0, // Adjust size if necessary
             ),
+            SizedBox(height: 20), // Space between loader and text row
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: 20),
                 Text(
                   message,
                   style: TextStyle(fontSize: 24), // Customize text style
                 ),
-                // Space between text and second loader
-                SpinKitThreeBounce(
-                  color:
-                      Colors.green, // Customize the color for the second loader
-                  size: 10.0, // Adjust size if necessary
-                ),
+                SizedBox(width: 10), // Space between text and second loader
+                // SpinKitThreeBounce(
+                //   color: Colors.green, // Customize the color for the loader
+                //   size: 15.0, // Adjust size if necessary
+                // ),
               ],
-            ), // Space between first loader and text
+            ),
           ],
         ),
       ),
