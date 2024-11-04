@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../Toasters/Toaster.dart';
 import 'OtpScreen.dart';
-
+ 
+import 'package:get/get.dart'; 
 class Loginscreen extends StatefulWidget {
   @override
   _LoginscreenState createState() => _LoginscreenState();
@@ -26,6 +27,9 @@ class _LoginscreenState extends State<Loginscreen> {
     if (_formKey.currentState!.validate() && agreeToTerms) {
       getOTPButton.value = "Sending OTP...";
       isLoading.value = true; // Start loading
+      await Future.delayed(Duration(seconds: 2));
+      isLoading.value = false; // Set loading to false
+      getOTPButton.value = "Send OTP"; // Reset button text
 
       phoneNumber = '${_mobileController.text.trim()}';
       final fullname = _nameController.text.trim();
@@ -170,12 +174,19 @@ class _LoginscreenState extends State<Loginscreen> {
                             : () async {
                                 _submitForm(); // Perform your submit action
                               },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 96, 15, 196),
-                          padding: EdgeInsets.symmetric(
-                            vertical: 15.0,
-                            horizontal: 60.0,
-                          ),
+
+
+style: ElevatedButton.styleFrom(
+            backgroundColor: isLoading.value
+                ? Colors.grey
+                : Color.fromARGB(255, 96, 15, 196),
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(
+              vertical: 15.0,
+              horizontal: 60.0,
+            ),
+                              
+                        
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30.0),
                           ),

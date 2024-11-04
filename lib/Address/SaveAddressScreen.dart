@@ -45,7 +45,7 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
   // Form key to validate the form fields
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
+String? selectedCategory = 'Home';
   // Text controllers for user input
   final houseController = TextEditingController();
   final apartmentController = TextEditingController();
@@ -54,7 +54,7 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
   final phoneNumberController = TextEditingController();
 
   // Variable to track selected category (Friends & Family, Others)
-  String? selectedCategory;
+  // String? selectedCategory;
 
   // A list to simulate saving address details
   final List<Map<String, String>> _savedAddresses = [];
@@ -219,84 +219,7 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
     }
   }
 
-  // Future<void> _openPhoneBook() async {
-  //   print("Attempting to open phone book...");
-
-  //   PermissionStatus permission = await Permission.contacts.status;
-  //   print('Initial permission status: $permission');
-
-  //   if (permission.isDenied) {
-  //     permission = await Permission.contacts.request();
-  //     print('Requested permission status: $permission');
-  //   }
-
-  //   if (permission.isGranted) {
-  //     try {
-  //       Iterable<Contact> contacts = await ContactsService.getContacts();
-  //       print('Fetched contacts: ${contacts.length} found.');
-
-  //       if (contacts.isEmpty) {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(content: Text('No contacts found.')),
-  //         );
-  //         return;
-  //       }
-
-  //       Contact? selectedContact = await showDialog<Contact>(
-  //         context: context,
-  //         builder: (BuildContext context) {
-  //           return AlertDialog(
-  //             title: const Text('Select a contact'),
-  //             content: Container(
-  //               width: double.maxFinite,
-  //               height: 400.0,
-  //               child: ListView.builder(
-  //                 itemCount: contacts.length,
-  //                 itemBuilder: (context, index) {
-  //                   Contact contact = contacts.elementAt(index);
-  //                   return ListTile(
-  //                     title: Text(contact.displayName ?? ''),
-  //                     onTap: () {
-  //                       Navigator.of(context).pop(contact);
-  //                     },
-  //                   );
-  //                 },
-  //               ),
-  //             ),
-  //           );
-  //         },
-  //       );
-
-  //       if (selectedContact != null &&
-  //           selectedContact.phones != null &&
-  //           selectedContact.phones!.isNotEmpty) {
-  //         setState(() {
-  //           phoneNumberController.text =
-  //               selectedContact.phones!.first.value ?? '';
-  //         });
-  //       }
-  //     } catch (e) {
-  //       print('Error fetching contacts: $e');
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('Failed to fetch contacts: $e')),
-  //       );
-  //     }
-  //   } else if (permission.isPermanentlyDenied) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text(
-  //             'Permission to access contacts is permanently denied. Please enable it in settings.'),
-  //       ),
-  //     );
-  //     openAppSettings();
-  //   } else {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text('Permission to access contacts was denied.'),
-  //       ),
-  //     );
-  //   }
-  // }
+   
 
   @override
   Widget build(BuildContext context) {
@@ -579,9 +502,10 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                       ),
                       autovalidateMode: AutovalidateMode.onUnfocus,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                          final receiverValue = value?.trim();
+                        if (receiverValue == null || receiverValue.isEmpty) {
                           return "Enter a valid Receiver\'s Name";
-                        } else if (!GetUtils.isUsername(value)) {
+                        } else if (!GetUtils.isUsername(receiverValue)) {
                           return "Enter a valid Receiver\'s Name";
                         }
                         return null; // No error
@@ -599,8 +523,11 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                         LengthLimitingTextInputFormatter(10),
                       ],
                       decoration: InputDecoration(
-                        labelText: 'Receiver\'s Phone Number',
+                        labelText: 'Receiver\'s Phone Number Optional',
+                          labelStyle: TextStyle(fontSize: 15.0)
+                        ,
                         border: OutlineInputBorder(),
+                        
                         // Phone icon
 
                         suffixIcon: IconButton(
@@ -610,6 +537,7 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                         ), // Phone icon
                       ),
                       keyboardType: TextInputType.phone,
+                      // Adjust font size here
                     ),
                   ),
                   SizedBox(height: 10.0),
@@ -637,9 +565,10 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                         final trimmedValue = value?.trim();
+                        if (trimmedValue == null || trimmedValue.isEmpty) {
                           return "Enter a valid Name";
-                        } else if (!GetUtils.isUsername(value)) {
+                        } else if (!GetUtils.isUsername(trimmedValue)) {
                           return "Enter a valid Name";
                         }
                         return null; // No error
@@ -656,7 +585,8 @@ class _SaveAddressScreenState extends State<SaveAddressScreen> {
                         LengthLimitingTextInputFormatter(10),
                       ],
                       decoration: InputDecoration(
-                        labelText: 'Receiver\'s Phone Number',
+                        labelText: 'Receiver\'s Phone Number Optional',
+                          labelStyle: TextStyle(fontSize: 15.0),
                         border: OutlineInputBorder(),
                         // Phone icon
                         suffixIcon: IconButton(

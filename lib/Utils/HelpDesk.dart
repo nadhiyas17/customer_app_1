@@ -27,9 +27,9 @@ class HelpDeskScreen extends StatelessWidget {
 
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            // Implement navigation back to the previous screen
-          },
+         onPressed: () {
+  Navigator.pop(context); // Navigate back to the previous screen
+},
         ),
       ),
       body: Padding(
@@ -108,13 +108,18 @@ class HelpDeskScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 110.0),
+            
             // Add the image here
-            Image.asset(
-              'assets/logo.jpeg', // Replace with the actual path to your image
-              width: double.infinity, // Adjust the width as needed
-              fit: BoxFit.cover,
-            ),
+        Container(
+  height: 340, // Set a fixed height
+  child: Image.asset(
+    'assets/surecare_launcher.png',
+    width: double.infinity, // This can stay as is
+    fit: BoxFit.cover,
+  ),
+)
+
             // Add a placeholder for the 24/7 support icon
           ],
         ),

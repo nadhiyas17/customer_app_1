@@ -184,26 +184,26 @@ class _CurrentLocationlState extends State<AddAddress> {
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.search,
-              color: Colors.white,
-            ),
-            onPressed: () async {
-              final result = await showSearch(
-                context: context,
-                delegate:
-                    AddressSearchDelegate(onSearchAddress: _onSearchAddress),
-              );
-              GoogleMapSearchPlacesApi();
+        // actions: [
+        //   IconButton(
+        //     icon: Icon(
+        //       Icons.search,
+        //       color: Colors.white,
+        //     ),
+        //     onPressed: () async {
+        //       final result = await showSearch(
+        //         context: context,
+        //         delegate:
+        //             AddressSearchDelegate(onSearchAddress: _onSearchAddress),
+        //       );
+        //       GoogleMapSearchPlacesApi();
 
-              if (result != null) {
-                _onSearchAddress(result);
-              }
-            },
-          ),
-        ],
+        //       if (result != null) {
+        //         _onSearchAddress(result);
+        //       }
+        //     },
+        //   ),
+        // ],
       ),
       body: Stack(
         children: [

@@ -135,7 +135,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     Navigator.pushNamed(
       context,
       "/addaddress",
-      arguments: [widget.mobileNumber, widget.selectedAddress]
+      arguments: [widget.mobileNumber,  selectedAddress]
     );
     print("Add new address clickeddsd${selectedAddress}");
     print("Add new address clicked");

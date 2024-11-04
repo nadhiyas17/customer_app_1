@@ -17,11 +17,10 @@ class TermsAndConditionsScreen extends StatelessWidget {
               ),
             ),
             // Image on the right
-            Image.asset(
-              'assets/logo.jpeg', // Replace with your image path
-              width: 50,
-              height: 50, // Adjust image size as needed
-            ),
+            // Image.asset(
+            //   'assets/surecare_launcher.png', // Replace with your image path
+            //  // Adjust image size as needed
+            // ),
           ],
         ),
         backgroundColor: Color(0xFF6B3FA0), // Adjust color as needed
