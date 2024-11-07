@@ -74,17 +74,18 @@ class _LoginscreenState extends State<Loginscreen> {
             Image.asset(
               'assets/Registers.png', // Ensure this path is correct
               width: double.infinity,
-              height: 380,
+              height: 430,
               fit: BoxFit.cover,
             ),
             Padding(
-              padding: const EdgeInsets.all(15.0),
+             padding: const EdgeInsets.symmetric(horizontal: 15.0),
+
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 20.0),
+                
                     Align(
                       alignment: Alignment.topLeft,
                       child: Text(
@@ -106,10 +107,14 @@ class _LoginscreenState extends State<Loginscreen> {
                       autovalidateMode: AutovalidateMode.onUnfocus,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Enter a valid username";
+                          return "Enter a valid full name";
                         }
                         return null; // No error
                       },
+                      inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^[a-zA-Z\s]+$')), // Allow only alphabets and spaces
+            ],
+              
                     ),
                     SizedBox(height: 15.0),
                     TextFormField(
@@ -131,6 +136,7 @@ class _LoginscreenState extends State<Loginscreen> {
                       },
                       inputFormatters: [
                         LengthLimitingTextInputFormatter(10),
+                         FilteringTextInputFormatter.digitsOnly,
                       ],
                     ),
                     const SizedBox(height: 10.0),

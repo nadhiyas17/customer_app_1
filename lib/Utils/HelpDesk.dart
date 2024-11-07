@@ -114,7 +114,7 @@ class HelpDeskScreen extends StatelessWidget {
         Container(
   height: 340, // Set a fixed height
   child: Image.asset(
-    'assets/surecare_launcher.png',
+    'assets/support.png',
     width: double.infinity, // This can stay as is
     fit: BoxFit.cover,
   ),

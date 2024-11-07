@@ -55,17 +55,17 @@ var onGenerateRoute = (RouteSettings settings) {
         builder: (context) => AddAddressScreen(mobileNumber: mobileNumber),
       );
 
- case "/addaddress":
-  final List<dynamic> args = settings.arguments as List<dynamic>;
-  final String mobileNumber = args[0] as String;
-  final String addressSearch = args[1] as String; // Ensure this corresponds to the address
-  return MaterialPageRoute(
-    builder: (context) => AddAddress(
-      mobileNumber: mobileNumber,
-      addressSearch: addressSearch,
-    ),
-  );
-
+    case "/addaddress":
+      final List<dynamic> args = settings.arguments as List<dynamic>;
+      final String mobileNumber = args[0] as String;
+      final String addressSearch =
+          args[1] as String; // Ensure this corresponds to the address
+      return MaterialPageRoute(
+        builder: (context) => AddAddress(
+          mobileNumber: mobileNumber,
+          addressSearch: addressSearch,
+        ),
+      );
 
     // case "/sevedaddress":
     //   return MaterialPageRoute(builder: (builder) => SaveAddressScreen());
@@ -76,10 +76,12 @@ var onGenerateRoute = (RouteSettings settings) {
           builder: (builder) => CurrentLocationl(mobileNumber: mobileNumber));
 
     case "/dashboard":
-  final sublocality = settings.arguments as String; // Get the passed argument
-  return MaterialPageRoute(
-    builder: (_) => DashboardScreen(sublocality: sublocality), // Pass it to the screen
-  );
+      final sublocality =
+          settings.arguments as String; // Get the passed argument
+      return MaterialPageRoute(
+        builder: (_) =>
+            DashboardScreen(sublocality: sublocality), // Pass it to the screen
+      );
 
 // RegisterScreen
     default:

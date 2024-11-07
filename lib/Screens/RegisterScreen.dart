@@ -10,7 +10,7 @@ import '../Loading/FullScreeenLoader.dart';
 import '../Modals/RegisterModel.dart';
 
 class RegisterScreen extends StatefulWidget {
-  final String fullName; //TODO: check this is static
+  final String fullName;  
   final String mobileNumber;
   RegisterScreen({
     super.key,
@@ -94,266 +94,262 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-      body: LoaderOverlay(
-        overlayColor: Color.fromARGB(149, 36, 35, 35),
-        useDefaultLoading: false, // Disable default loader
-
-        overlayWidgetBuilder: (context) => FullscreenLoader(
-          message: "Loading",
-        ),
-
-        child: Stack(
-          children: [
-            Positioned(
-              top: 410.0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 20.0),
-                    Align(
-                      alignment: Alignment(-1.0, 0.0),
-                      child: Text(
-                        'Health Profile',
-                        style: TextStyle(
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF6B3FA0),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 30.0),
-                    Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextFormField(
-                            controller: _nameController,
-                            decoration: InputDecoration(
-                              labelText: 'Full Name',
-                              border: OutlineInputBorder(),
-                            ),
-                            enabled: false,
-                          ),
-                          const SizedBox(height: 10.0),
-                          Stack(
-                            children: [
-                              Container(
-                                margin: const EdgeInsets.only(top: 12.0),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: Colors.grey, width: 1.0),
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 5.0),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          flex: 45,
-                                          child: RadioListTile(
-                                            title: Text('Male'),
-                                            value: 'Male',
-                                            groupValue: _gender,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                _gender = value.toString();
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 55,
-                                          child: RadioListTile(
-                                            title: Text('Female'),
-                                            value: 'Female',
-                                            groupValue: _gender,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                _gender = value.toString();
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Positioned(
-                                left: 10.0,
-                                top: 0.0,
-                                child: Container(
-                                  color: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 5.0),
-                                  child: Text(
-                                    'Gender',
-                                    style: TextStyle(
-                                      fontSize: 16.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20.0),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: DropdownButtonFormField<String>(
-                                  value: _bloodGroup,
-                                  decoration: InputDecoration(
-                                    labelText: 'Blood Group (Optional)',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  items: [
-                                    'NA',
-                                    'A+',
-                                    'B+',
-                                    'AB+',
-                                    'O+',
-                                    'A-',
-                                    'B-',
-                                    'AB-',
-                                    'O-',
-                                  ]
-                                      .map((bloodType) => DropdownMenuItem(
-                                            child: Text(bloodType),
-                                            value: bloodType,
-                                          ))
-                                      .toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _bloodGroup = value!;
-                                    });
-                                  },
-                                  // If you don't want any validation, don't add a validator here.
-                                  validator:
-                                      null, // No validation, because it's optional
-                                ),
-                              ),
-                              SizedBox(width: 20.0),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _ageController,
-                                  decoration: InputDecoration(
-                                    labelText: 'Age',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  inputFormatters: [
-                                    LengthLimitingTextInputFormatter(2),
-                                  ],
-                                  keyboardType: TextInputType.number,
-                                  autovalidateMode: AutovalidateMode.onUnfocus,
-                                  validator: (value) {
-                                    value = value?.trim();
-                                    if (value == null || value.isEmpty) {
-                                      return "Field should not be empty";
-                                    } else if (!GetUtils.isNumericOnly(value)) {
-                                      return "Enter a numeric value";
-                                    } else {
-                                      if (value.length > 2) {
-                                        return "Enter a below 2 values";
-                                      }
-                                    }
-
-                                    return null; // No error
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20.0),
-                          TextFormField(
-                            controller: _emailController,
-                            decoration: InputDecoration(
-                              labelText: 'Enter Email ID',
-                              border: OutlineInputBorder(),
-                            ),
-                            keyboardType: TextInputType.emailAddress,
-                            autovalidateMode: AutovalidateMode.onUnfocus,
-                            validator: (value) {
-                              value = value?.trim();
-                              if (value == null || value.isEmpty) {
-                                return "Filed Shold not be empty";
-                              } else if (!GetUtils.isEmail(value)) {
-                                return "Enter a valid Email";
-                              }
-                              return null; // No error
-                            },
-                          ),
-                          const SizedBox(height: 20.0),
-                          Center(
-                            child: ElevatedButton(
-                              onPressed: _submitForm,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Color.fromARGB(255, 96, 15, 196),
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 15.0,
-                                  horizontal: 60.0,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                ),
-                              ),
-                              child: Text(
-                                'SUBMIT',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ),
-                          if (errorMessage != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
-                              child: Text(
-                                errorMessage!,
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          const SizedBox(height: 30.0),
-                          Center(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 20.0),
-                              child: Text(
-                                'Copyright © 2024 - SureCare',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 12.0),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Image.asset(
-                'assets/Registers.png',
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ],
-        ),
+ 
+    Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+    body: LoaderOverlay(
+      overlayColor: Color.fromARGB(149, 36, 35, 35),
+      useDefaultLoading: false, // Disable default loader
+      overlayWidgetBuilder: (context) => FullscreenLoader(
+        message: "Loading",
       ),
-    );
+      child: Stack(
+        children: [
+          Positioned(
+            top: 0.0, // Start from the top
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SingleChildScrollView(
+               
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+            
+                  Image.asset(
+                    'assets/Registers.png',
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+               
+                  ),
+                  const SizedBox(height: 20.0),
+                 Align(
+  alignment: Alignment(-1.0, 0.0),
+  child: Padding(
+    padding: const EdgeInsets.only(left: 16.0,  ), // Adjust padding as needed
+    child: Text(
+      'Health Profile',
+      style: TextStyle(
+        fontSize: 24.0,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF6B3FA0),
+      ),
+    ),
+  ),
+),
+
+                  const SizedBox(height: 30.0),
+                  Padding(
+  padding: const EdgeInsets.all(16.0), // Adjust the padding value as needed
+                  child:Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          controller: _nameController,
+                          decoration: InputDecoration(
+                            labelText: 'Full Name',
+                            border: OutlineInputBorder(),
+                          ),
+                          enabled: false,
+                        ),
+                        const SizedBox(height: 10.0),
+                        Stack(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(top: 12.0),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey, width: 1.0),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 5.0),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 45,
+                                        child: RadioListTile(
+                                          title: Text('Male'),
+                                          value: 'Male',
+                                          groupValue: _gender,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _gender = value.toString();
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 55,
+                                        child: RadioListTile(
+                                          title: Text('Female'),
+                                          value: 'Female',
+                                          groupValue: _gender,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _gender = value.toString();
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Positioned(
+                              left: 10.0,
+                              top: 0.0,
+                              child: Container(
+                                color: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                child: Text(
+                                  'Gender',
+                                  style: TextStyle(fontSize: 16.0),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20.0),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButtonFormField<String>(
+                                value: _bloodGroup,
+                                decoration: InputDecoration(
+                                  labelText: 'Blood Group (Optional)',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: [
+                                  'NA',
+                                  'A+',
+                                  'B+',
+                                  'AB+',
+                                  'O+',
+                                  'A-',
+                                  'B-',
+                                  'AB-',
+                                  'O-',
+                                ]
+                                    .map((bloodType) => DropdownMenuItem(
+                                          child: Text(bloodType),
+                                          value: bloodType,
+                                        ))
+                                    .toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _bloodGroup = value!;
+                                  });
+                                },
+                                validator: null, // No validation, because it's optional
+                              ),
+                            ),
+                            SizedBox(width: 20.0),
+                            Expanded(
+                              child: TextFormField(
+                                controller: _ageController,
+                                decoration: InputDecoration(
+                                  labelText: 'Age',
+                                  border: OutlineInputBorder(),
+                                ),
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(2),
+                                ],
+                                keyboardType: TextInputType.number,
+                                autovalidateMode: AutovalidateMode.onUnfocus,
+                                validator: (value) {
+                                  value = value?.trim();
+                                  if (value == null || value.isEmpty) {
+                                    return "Field should not be empty";
+                                  } else if (!GetUtils.isNumericOnly(value)) {
+                                    return "Enter a numeric value";
+                                  } else if (value.length > 2) {
+                                    return "Enter below 2 values";
+                                  }
+                                  return null; // No error
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20.0),
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            labelText: 'Enter Email ID',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.emailAddress,
+                          autovalidateMode: AutovalidateMode.onUnfocus,
+                          validator: (value) {
+                            value = value?.trim();
+                            if (value == null || value.isEmpty) {
+                              return "Field should not be empty";
+                            } else if (!GetUtils.isEmail(value)) {
+                              return "Enter a valid Email";
+                            }
+                            return null; // No error
+                          },
+                        ),
+                        const SizedBox(height: 20.0),
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: _submitForm,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color.fromARGB(255, 96, 15, 196),
+                              padding: EdgeInsets.symmetric(
+                                vertical: 15.0,
+                                horizontal: 60.0,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                            ),
+                            child: Text(
+                              'SUBMIT',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        if (errorMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10.0),
+                            child: Text(
+                              errorMessage!,
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        const SizedBox(height: 30.0),
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20.0),
+                            child: Text(
+                              'Copyright © 2024 - SureCare',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 12.0),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    )
+  
+  ) ;
+
+  
+  
   }
 }
